@@ -80,10 +80,21 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.findByName("release")
-            // Today's release artifact is the sideload APK on GitHub Releases.
-            // Switch this to `false` (or remove this line) when a Play-targeted
-            // build is introduced.
+            // Sideload distribution: this artifact is the signed APK on GitHub
+            // Releases. The in-app update banner is active. Build via
+            // `:app:assembleRelease`.
             buildConfigField("boolean", "SIDELOAD_DISTRIBUTION", "true")
+        }
+        create("playRelease") {
+            // Inherits everything from `release` (signing, minify, ProGuard,
+            // Sentry mapping upload via the plugin), then turns the update
+            // banner OFF — Google Play's Device and Network Abuse policy
+            // forbids Play-distributed apps from steering users to install
+            // APKs outside Play. Build the Play artifact with
+            // `:app:bundlePlayRelease` (produces an .aab for upload).
+            initWith(getByName("release"))
+            matchingFallbacks += listOf("release")
+            buildConfigField("boolean", "SIDELOAD_DISTRIBUTION", "false")
         }
     }
 
