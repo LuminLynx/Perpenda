@@ -21,6 +21,7 @@
 </p>
 
 <p align="center">
+  <a href="https://play.google.com/store/apps/details?id=com.perpenda"><img src="https://img.shields.io/badge/Google%20Play-Perpenda-414141?style=for-the-badge&logo=googleplay" alt="Get it on Google Play"></a>
   <a href="https://github.com/LuminLynx/Perpenda/releases/download/V1.0/app-release.apk"><img src="https://img.shields.io/badge/Download%20APK-v1.0%20%C2%B7%207.1%20MB%20%C2%B7%20Android%208%2B-brightgreen?style=for-the-badge" alt="Download v1.0 APK"></a>
 </p>
 
@@ -35,11 +36,14 @@
 
 ## Install
 
-Sideload the signed APK directly. Google Play Protect verifies on install. The in-app banner surfaces when a new version is available.
+Two ways to install:
 
-- **[Download v1.0 APK](https://github.com/LuminLynx/Perpenda/releases/download/V1.0/app-release.apk)** · 7.1 MB · Android 8.0 (API 26)+
-- **[SHA-256 fingerprint](https://github.com/LuminLynx/Perpenda/releases/download/V1.0/app-release.apk.sha256)** for verification
-- Full install instructions: **[perpenda.com/#download](https://perpenda.com/#download)**
+- **[Get it on Google Play](https://play.google.com/store/apps/details?id=com.perpenda)** — recommended; updates automatically through Play.
+- **[Download v1.0 APK](https://github.com/LuminLynx/Perpenda/releases/download/V1.0/app-release.apk)** · 7.1 MB · Android 8.0 (API 26)+ — sideload directly; Google Play Protect verifies on install. **[SHA-256 fingerprint](https://github.com/LuminLynx/Perpenda/releases/download/V1.0/app-release.apk.sha256)** for verification.
+
+Full install instructions: **[perpenda.com/#download](https://perpenda.com/#download)**
+
+> **Note:** the Play build and the sideloaded APK are signed with different keys, so one can't update over the other in place. To switch sources, uninstall the existing app first, then reinstall — your progress is restored when you sign back in.
 
 ---
 
@@ -64,7 +68,7 @@ Perpenda is not a math-first ML course, a code-first engineering curriculum, a g
 
 ## Current release
 
-**v1.0 — sideload distribution.** The first public build shipped 1 June 2026 with fifteen of twenty units, the calibrated grader, and spaced review. The APK is hosted on [GitHub Releases](https://github.com/LuminLynx/Perpenda/releases) and linked from [perpenda.com/#download](https://perpenda.com/#download); the app surfaces an in-app banner when a new version is available.
+**v1.0 — Google Play + sideload distribution.** The first public build shipped 1 June 2026 with fifteen of twenty units, the calibrated grader, and spaced review. It is published on [Google Play](https://play.google.com/store/apps/details?id=com.perpenda); the same build is also hosted as a sideload APK on [GitHub Releases](https://github.com/LuminLynx/Perpenda/releases) and linked from [perpenda.com/#download](https://perpenda.com/#download). The Play build follows Google Play policy and does not surface the in-app sideload-update banner.
 
 What v1.0 ships:
 
@@ -77,7 +81,6 @@ Held back, planned for follow-up releases:
 
 - Units 16–20 — the operating-phase units (monitoring, vendor risk, A/B, fallbacks). Placeholders exist in the path; authored content lands as real-use signal decides which production topics matter most.
 - F6 Path Overview.
-- Google Play distribution. v1.0 is sideload-only by deliberate choice; Play submission is a separate future decision.
 
 Canonical status docs:
 
