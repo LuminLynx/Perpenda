@@ -47,7 +47,7 @@ PRIVATE BY DESIGN
 
 No ads. No trackers. No analytics SDK. The app talks only to its own backend, over HTTPS. You can delete your account and all your data from inside the app at any time.
 
-Perpenda is in active development. Sign in to save your progress across devices, or browse the glossary without an account.
+Perpenda is in active development. Create a free account to start your first unit and save your progress across devices.
 ```
 
 ## Content rating
