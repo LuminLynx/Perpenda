@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: "Source Serif 4"; src: url("fonts/SourceSerif4-SemiBold.otf") format("opentype"); font-weight: 600; font-style: normal; font-display: block; }
+  @font-face { font-family: "Source Serif 4"; src: url("fonts/SourceSerif4-Regular.otf") format("opentype"); font-weight: 400; font-style: normal; font-display: block; }
+  @font-face { font-family: "Source Serif 4"; src: url("fonts/SourceSerif4-Italic.otf") format("opentype"); font-weight: 400; font-style: italic; font-display: block; }
+  @font-face { font-family: "JetBrains Mono"; src: url("fonts/JetBrainsMono-Medium.ttf") format("truetype"); font-weight: 500; font-style: normal; font-display: block; }
+  * { margin: 0; padding: 0; }
+  html, body { overflow: hidden; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+  <canvas id="c" width="3840" height="2160"></canvas>
+  <script>
+    const W = 1920, H = 1080, CX = W / 2;
+    const ctx = document.getElementById('c').getContext('2d');
+    ctx.scale(2, 2); // render the 1920x1080 layout into a 3840x2160 buffer (crisp on hi-DPI)
+    const q = new URLSearchParams(location.search);
+    const V = q.get('v') || 'a';
+    const LIGHT = q.get('theme') === 'light';
+
+    const BG    = LIGHT ? '#FAF3DC' : '#1C1815';
+    const PAPER = LIGHT ? '#23201C' : '#F3EFE6';
+    const DIM   = LIGHT ? '#5C5547' : '#B7AD9C';
+    const FNT   = LIGHT ? '#9A917F' : '#8A8175';
+    const OX    = LIGHT ? '#7D2A1A' : '#D6816A';
+    const SAGE  = LIGHT ? '#5C6B5D' : '#9DB39B';
+    const HAIR  = LIGHT ? 'rgba(28,24,21,0.16)' : 'rgba(243,239,230,0.18)';
+    const PANEL = LIGHT ? 'rgba(28,24,21,0.04)' : 'rgba(243,239,230,0.05)';
+    const SERIF = '"Source Serif 4"', MONO = '"JetBrains Mono"';
+
+    function text(s, x, y, font, color, align, ls = 0) {
+      ctx.fillStyle = color; ctx.font = font; ctx.textAlign = align;
+      ctx.textBaseline = 'alphabetic'; ctx.letterSpacing = ls + 'px';
+      ctx.fillText(s, x, y);
+    }
+    function roundRect(x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+    const ICON = new Image();
+    function icon(cx, cy, size) {
+      const x = cx - size/2, yy = cy - size/2, r = size*0.22;
+      ctx.save();
+      ctx.shadowColor = LIGHT ? 'rgba(45,33,22,0.22)' : 'rgba(0,0,0,0.45)';
+      ctx.shadowBlur = size*0.07; ctx.shadowOffsetY = size*0.03;
+      roundRect(x, yy, size, size, r); ctx.fillStyle = '#FAF3DC'; ctx.fill();
+      ctx.restore();
+      ctx.save(); roundRect(x, yy, size, size, r); ctx.clip();
+      ctx.drawImage(ICON, x, yy, size, size); ctx.restore();
+    }
+    function checkmark(cx, cy, ok, s) {
+      ctx.save();
+      ctx.strokeStyle = ok ? SAGE : OX; ctx.lineWidth = s*0.16; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      ctx.beginPath();
+      if (ok) { ctx.moveTo(cx - s*0.5, cy); ctx.lineTo(cx - s*0.12, cy + s*0.42); ctx.lineTo(cx + s*0.62, cy - s*0.5); }
+      else { ctx.moveTo(cx - s*0.45, cy - s*0.45); ctx.lineTo(cx + s*0.45, cy + s*0.45); ctx.moveTo(cx + s*0.45, cy - s*0.45); ctx.lineTo(cx - s*0.45, cy + s*0.45); }
+      ctx.stroke(); ctx.restore();
+    }
+
+    function draw() {
+      ctx.fillStyle = BG; ctx.fillRect(0, 0, W, H);
+
+      // Centered, symmetric lockup: app icon on top, headline beneath, oxblood rule.
+      icon(CX, 320, 300);
+      if (V === 'a') {
+        text('The AI calls', CX, 620, '700 158px ' + SERIF, PAPER, 'center');
+        text('are yours now.', CX, 858, '700 158px ' + SERIF, PAPER, 'center');
+        ctx.fillStyle = OX; ctx.fillRect(CX - 150, 930, 300, 9);
+      } else {
+        text('Decision-grade', CX, 620, '700 158px ' + SERIF, PAPER, 'center');
+        text('AI fluency.', CX, 858, '700 158px ' + SERIF, OX, 'center');
+        ctx.fillStyle = OX; ctx.fillRect(CX - 150, 930, 300, 9);
+      }
+    }
+
+    async function boot() {
+      try { await Promise.all(['600 156px "Source Serif 4"','400 60px "Source Serif 4"','500 34px "JetBrains Mono"'].map(f => document.fonts.load(f))); } catch (e) {}
+      await document.fonts.ready;
+      await new Promise(res => { ICON.onload = ICON.onerror = res; ICON.src = 'icon-512.png'; });
+      draw();
+      window.__ready = true;
+    }
+    boot();
+  </script>
+</body>
+</html>
