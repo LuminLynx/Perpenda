@@ -41,7 +41,11 @@ say 2   1.0  "The AI calls are yours now."
 say 3a  1.0  "Read the bite."
 say 3b  1.0  "Make the call."
 say 3c  1.0  "Get calibrated."
-say 4   1.2  "Criterion by criterion."
+# "Criterion" makes the espeak phonemizer emit a 'ʲ' phoneme (…ɹ ɪ ʲ ə n) that
+# the ryan-high model renders as noise. Respell it "crighteerion" so it
+# phonemizes cleanly as k ɹ aɪ t ˈɪ ɹ i ə n ("cry-TEER-ee-un") — same sound,
+# no glitch. (Display copy elsewhere stays "Criterion by criterion.")
+say 4   1.2  "Crighteerion by crighteerion."
 say 5   1.0  "No vanity score. Just where you actually stand."
 say 6   1.0  "Decision-grade AI fluency. On Google Play."
 
