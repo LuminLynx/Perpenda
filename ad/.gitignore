@@ -8,3 +8,4 @@ models/
 *.mp3
 *.wav
 cmp/
+thumb_*.png
