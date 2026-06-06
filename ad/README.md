@@ -8,7 +8,9 @@ Playwright (so timing is exact), then encoded with ffmpeg. Brand fonts
 (Source Serif 4 / JetBrains Mono) and the app icon are bundled here.
 
 ## Files
-- `ad.html` — the animation. `?theme=light` (cream) or default (dark ink). 23s.
+- `ad.html` — the animation. `?theme=light` (cream) or default (dark ink). The
+  end card holds, so length is configurable; rendered at 24.5s (the extra time
+  lets the slower amy voice read the closing lines unhurried).
 - `capture_ad.js` — Playwright capture → PNG frames at 3840×2160 (deterministic clock).
 - `music.py` — synthesizes the original ambient soundtrack (`music_raw.wav`).
 - `thumb.html` + `rthumb.js` — 4K thumbnails (concepts a/b, dark/light).

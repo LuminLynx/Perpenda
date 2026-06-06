@@ -46,19 +46,21 @@ say 3a  1.0  "Read the bite."
 say 3b  1.0  "Make the call."
 say 3c  1.0  "Get calibrated."
 say 4   1.0  "Criterion by criterion."
-# The two closing lines are dense for amy's pace, so they are slightly
-# compressed (0.85) and their start times are computed below to always fit
-# before the 23 s hard end with a clean gap (no overlap, no truncation).
-say 5   0.85 "No vanity score. Just where you actually stand."
-say 6   0.85 "Decision-grade AI fluency. On Google Play."
+# The two closing lines are placed from the end backwards: their start times
+# are computed from measured durations so they finish just before the hard end
+# (read from the soundtrack length) with a clean gap and no truncation. The ad
+# is lengthened (see make_video.sh DUR) to give amy room at natural pace.
+say 5   1.0  "No vanity score. Just where you actually stand."
+say 6   1.0  "Decision-grade AI fluency. On Google Play."
 
-# Compute back-half placement from measured durations (ms).
 dur_ms () { python3 -c "import wave;w=wave.open('$1');print(int(round(w.getnframes()/w.getframerate()*1000)))"; }
+# Hard end = the actual video length (the mux is -shortest), not the soundtrack.
+vid_ms () { "$FF" -i "$1" 2>&1 | sed -n 's/.*Duration: \([0-9:.]*\).*/\1/p' | head -1 | awk -F: '{printf "%d", ($1*3600+$2*60+$3)*1000}'; }
 D5=$(dur_ms vo_5.wav); D6=$(dur_ms vo_6.wav)
-VEND=23000; TAIL=120; GAP=220        # leave 120 ms before the cut; 220 ms between lines
+VEND=$(vid_ms "perpenda-ad-4k-$THEME-HQ.mp4"); TAIL=150; GAP=220   # end ~150 ms before the cut; 220 ms between lines
 S6=$(( VEND - D6 - TAIL ))           # vo_6 ends ~120 ms before the video end
 S5=$(( S6 - GAP - D5 ))              # vo_5 ends one gap before vo_6 starts
-echo "back-half: vo_5 @${S5}ms (dur ${D5}) -> vo_6 @${S6}ms (dur ${D6})"
+echo "back-half: vo_5 @${S5}ms (dur ${D5}) -> vo_6 @${S6}ms (dur ${D6})  [VEND ${VEND}]"
 
 "$FF" -y -i music.wav \
   -i vo_1.wav -i vo_2.wav -i vo_3a.wav -i vo_3b.wav -i vo_3c.wav -i vo_4.wav -i vo_5.wav -i vo_6.wav \

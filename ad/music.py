@@ -1,7 +1,7 @@
 import numpy as np, wave, struct, os
 
 SR = 44100
-DUR = 23.0
+DUR = float(os.environ.get('AD_DUR', 24.5))
 N = int(SR * DUR)
 t = np.arange(N) / SR
 
@@ -18,8 +18,9 @@ chords = {
  'C':  [C3,G3,C4,E4],
  'Fr': [F3,A3,C4,F4],
 }
-# (start, end, chord) — aligned to the scene cuts
-segs = [(0.0,4.2,'F'),(4.2,7.8,'Dm'),(7.8,12.0,'Bb'),(12.0,16.3,'C'),(16.3,19.0,'Dm'),(19.0,23.5,'Fr')]
+# (start, end, chord) — aligned to the scene cuts; the closing chord sustains
+# to the end of the timeline (DUR), which may be lengthened for slower voices.
+segs = [(0.0,4.2,'F'),(4.2,7.8,'Dm'),(7.8,12.0,'Bb'),(12.0,16.3,'C'),(16.3,19.0,'Dm'),(19.0,DUR+0.5,'Fr')]
 
 def rcos(x):  # 0..1 raised-cosine
     return 0.5 - 0.5*np.cos(np.pi*np.clip(x,0,1))
