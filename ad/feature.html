@@ -21,9 +21,10 @@
     ctx.scale(2, 2);
     const q = new URLSearchParams(location.search);
     const V = q.get('v') || 'a';
-    const LIGHT = q.get('theme') === 'light';
+    const THEME = q.get('theme') || 'light';        // light (cream) | paper (near-white) | dark
+    const LIGHT = THEME !== 'dark';
 
-    const BG    = LIGHT ? '#FAF3DC' : '#1C1815';
+    const BG    = THEME === 'paper' ? '#FBF9F3' : (LIGHT ? '#FAF3DC' : '#1C1815');
     const PAPER = LIGHT ? '#23201C' : '#F3EFE6';
     const DIM   = LIGHT ? '#5C5547' : '#B7AD9C';
     const FNT   = LIGHT ? '#9A917F' : '#8A8175';

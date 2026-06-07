@@ -10,6 +10,7 @@ const SRC = 'file://' + path.join(__dirname, 'feature.html');
   const jobs = [
     ['a','light','feature_a_light_2x.png'], ['a','dark','feature_a_dark_2x.png'],
     ['b','light','feature_b_light_2x.png'], ['b','dark','feature_b_dark_2x.png'],
+    ['a','paper','feature_a_paper_2x.png'], ['b','paper','feature_b_paper_2x.png'],
   ];
   for (const [v, theme, out] of jobs) {
     const p = await b.newPage({ viewport: { width: 2048, height: 1000 }, deviceScaleFactor: 1 });
