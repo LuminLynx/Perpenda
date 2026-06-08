@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>* { margin:0; padding:0; } html,body{ overflow:hidden; } svg{ display:block; }</style>
+</head>
+<body>
+  <div id="wrap"></div>
+  <script>
+    // Official Perpenda mark (from docs/brand/perpenda-mark.svg), 64x64 space.
+    const MARK = `
+      <g transform="translate(8.7,0.45)">
+        <path d="M30.850 14.866C36.476 14.866 39.492 17.650 39.492 22.986C39.492 29.018 35.838 33.252 28.414 33.252L24.992 33.252L25.050 33.020L28.472 14.866ZM18.032 14.518L23.310 15.156C22.498 20.144 21.628 25.132 20.700 30.120L17.278 48.100L12.348 48.680L11.826 51L27.544 51L28.008 48.680L22.440 47.984C23.078 43.982 23.774 39.922 24.528 35.920L28.530 35.920C39.028 35.920 44.886 30.178 44.886 22.348C44.886 16.316 40.536 12.140 31.720 12.140L18.496 12.140Z" fill="MARKCOLOR" stroke="MARKCOLOR" stroke-width="0.9" stroke-linejoin="round" stroke-linecap="round"></path>
+        <line x1="3" y1="40" x2="28.53" y2="40" stroke="MARKCOLOR" stroke-width="2.6" stroke-linecap="round"></line>
+      </g>`;
+
+    const q = new URLSearchParams(location.search);
+    const THEME = q.get('theme') || 'cream';
+    // [background, mark]
+    const PAL = {
+      cream:   ['#FAF3DC', '#7D2A1A'],   // oxblood P on cream  (matches app icon)
+      ink:     ['#1C1815', '#F3EFE6'],   // paper P on ink (dark)
+      oxblood: ['#7D2A1A', '#FAF3DC'],   // cream P on oxblood (bold)
+      paper:   ['#FBF9F3', '#7D2A1A'],   // oxblood P on near-white
+    };
+    const [BG, MK] = PAL[THEME] || PAL.cream;
+
+    const S = 9.2;            // 64-unit mark -> ~589px, comfortably inside a circle crop
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+        <rect width="1024" height="1024" fill="${BG}"></rect>
+        <g transform="translate(512,512) scale(${S}) translate(-32,-32)">
+          ${MARK.replaceAll('MARKCOLOR', MK)}
+        </g>
+      </svg>`;
+    document.getElementById('wrap').innerHTML = svg;
+    window.__ready = true;
+  </script>
+</body>
+</html>
