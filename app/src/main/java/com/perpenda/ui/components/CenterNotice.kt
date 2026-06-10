@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,16 +54,15 @@ fun CenterNoticeOverlay(
     ) {
         Text(
             text = notice.text,
-            // Oxblood completion family (primaryContainer), not bannerTint:
-            // the ochre banner reads as "review needed", the wrong semantic
-            // for a success confirmation. DESIGN_BRIEF: completion is oxblood.
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            // Dedicated notice tokens (Color.kt): paper card in light mode,
+            // oxblood completion tint in dark — chosen by eye on device.
+            color = colors.onNoticeTint,
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .padding(horizontal = 32.dp)
-                .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(2.dp))
+                .background(colors.noticeTint, RoundedCornerShape(2.dp))
                 .border(1.dp, colors.hairline, RoundedCornerShape(2.dp))
                 .padding(horizontal = 20.dp, vertical = 14.dp)
         )

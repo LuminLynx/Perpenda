@@ -7,14 +7,14 @@
          centered in the 512 tile (within the adaptive-icon safe zone). -->
     <group android:translateX="74" android:translateY="14">
         <path
-            android:fillColor="#1C1815"
-            android:strokeColor="#1C1815"
+            android:fillColor="#7D2A1A"
+            android:strokeColor="#7D2A1A"
             android:strokeWidth="14"
             android:strokeLineJoin="round"
             android:strokeLineCap="round"
             android:pathData="M219.500 133.260C256.360 133.260 276.120 151.500 276.120 186.460C276.120 225.980 252.180 253.720 203.540 253.720L181.120 253.720L181.500 252.200L203.920 133.260ZM135.520 130.980L170.100 135.160C164.780 167.840 159.080 200.520 153 233.200L130.580 351L98.280 354.800L94.860 370L197.840 370L200.880 354.800L164.400 350.240C168.580 324.020 173.140 297.420 178.080 271.200L204.300 271.200C273.080 271.200 311.460 233.580 311.460 182.280C311.460 142.760 282.960 115.400 225.200 115.400L138.560 115.400Z" />
         <path
-            android:strokeColor="#1C1815"
+            android:strokeColor="#7D2A1A"
             android:strokeWidth="30"
             android:strokeLineCap="round"
             android:pathData="M60,282 L215.13,282" />
