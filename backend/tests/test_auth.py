@@ -86,8 +86,16 @@ def test_validate_password_min_length() -> None:
         validate_password("short")
 
 
-def test_validate_display_name_bounds() -> None:
-    assert validate_display_name("  Ada  ") == "Ada"
+def test_validate_display_name_requires_first_and_last() -> None:
+    # Whitespace is normalized, including runs between names.
+    assert validate_display_name("  Ada   Lovelace  ") == "Ada Lovelace"
+    # Single word — even a long one — is rejected: first AND last required.
+    with pytest.raises(AuthError):
+        validate_display_name("Ada")
+    # Each part needs 2+ characters ("J Doe" is an initial, not a name).
+    with pytest.raises(AuthError):
+        validate_display_name("J Doe")
+    # Length bounds still apply.
     with pytest.raises(AuthError):
         validate_display_name("A")
     with pytest.raises(AuthError):
@@ -129,7 +137,7 @@ def test_signup_returns_429_when_rate_limited(monkeypatch) -> None:
     client = TestClient(app)
     response = client.post(
         "/api/v1/auth/signup",
-        json={"email": "a@b.com", "password": "whatever123", "displayName": "Ada"},
+        json={"email": "a@b.com", "password": "whatever123", "displayName": "Ada Lovelace"},
     )
     assert response.status_code == 429
     assert response.json()["error"]["code"] == "RATE_LIMITED"
@@ -157,7 +165,7 @@ def test_signup_race_returns_409_not_500(monkeypatch) -> None:
     client = TestClient(app)
     response = client.post(
         "/api/v1/auth/signup",
-        json={"email": "raced@example.com", "password": "whatever123", "displayName": "Ada"},
+        json={"email": "raced@example.com", "password": "whatever123", "displayName": "Ada Lovelace"},
     )
     assert response.status_code == 409
     assert response.json()["error"]["code"] == "EMAIL_TAKEN"

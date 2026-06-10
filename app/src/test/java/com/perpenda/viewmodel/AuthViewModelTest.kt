@@ -166,6 +166,22 @@ class AuthViewModelTest {
     }
 
     @Test
+    fun `signup rejects a single-word display name locally`() = runTest(dispatcher) {
+        val repo = FakeAuthRepo(signupResult = SignupResult.Session(session("ada@example.com")))
+        val viewModel = AuthViewModel(repo)
+        viewModel.setMode(AuthMode.Signup)
+        viewModel.onEmailChanged("ada@example.com")
+        viewModel.onPasswordChanged("password123")
+        viewModel.onDisplayNameChanged("Ada")
+
+        viewModel.submit()
+        advanceUntilIdle()
+
+        assertFalse(viewModel.uiState.justAuthenticated)
+        assertEquals("Enter your first and last name.", viewModel.uiState.errorMessage)
+    }
+
+    @Test
     fun `forgot password requires a plausible email first`() = runTest(dispatcher) {
         val repo = FakeAuthRepo()
         val viewModel = AuthViewModel(repo)
@@ -261,7 +277,7 @@ class AuthViewModelTest {
         viewModel.setMode(AuthMode.Signup)
         viewModel.onEmailChanged("ada@example.com")
         viewModel.onPasswordChanged("password123")
-        viewModel.onDisplayNameChanged("Ada")
+        viewModel.onDisplayNameChanged("Ada Lovelace")
         return viewModel
     }
 
