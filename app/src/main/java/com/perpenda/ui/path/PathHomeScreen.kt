@@ -314,7 +314,7 @@ private fun PathNodeRow(
                         text = when (state) {
                             UnitGateState.LOCKED -> "Locked · finish earlier units first"
                             UnitGateState.DONE -> "Unit ${unit.position} · completed"
-                            UnitGateState.CURRENT -> "Unit ${unit.position} · continue"
+                            UnitGateState.CURRENT -> "Unit ${unit.position} · in progress"
                             UnitGateState.AVAILABLE -> "Unit ${unit.position} · ${unit.status}"
                         },
                         style = MaterialTheme.typography.bodySmall,
@@ -322,8 +322,12 @@ private fun PathNodeRow(
                     )
                 }
                 // No trailing icon when locked — the node's lock glyph is
-                // the single indicator (avoids the double-lock).
-                if (!locked) {
+                // the single indicator (avoids the double-lock). The CURRENT
+                // card also drops it: the pinned Continue button below the
+                // list is the single "act" affordance for the current unit,
+                // so its card reads as status ("in progress"), not as a
+                // second play control. The card itself stays tappable.
+                if (!locked && state != UnitGateState.CURRENT) {
                     Icon(
                         imageVector = Icons.Filled.PlayArrow,
                         contentDescription = "Open",
