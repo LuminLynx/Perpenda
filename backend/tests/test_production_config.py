@@ -104,6 +104,41 @@ def test_fails_in_production_when_ai_provider_api_key_is_empty(monkeypatch: pyte
         validate_production_config()
 
 
+def test_fails_in_production_when_verification_on_without_resend_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """With verification required and no provider key, codes would route
+    to the logging sender and users could never verify — refuse the deploy.
+    """
+    monkeypatch.setattr(config, "APP_ENV", "production")
+    monkeypatch.setattr(config, "DATABASE_URL", "postgresql://u:p@h:5432/d")
+    monkeypatch.setattr(config, "JWT_SECRET", "real")
+    monkeypatch.setattr(config, "POSTGRES_PASSWORD", "real")
+    monkeypatch.setattr(config, "AI_PROVIDER_API_KEY", "sk-ant-real")
+    monkeypatch.setattr(config, "EMAIL_VERIFICATION_REQUIRED", True)
+    monkeypatch.setattr(config, "RESEND_API_KEY", "")
+
+    with pytest.raises(ProductionConfigError, match="RESEND_API_KEY"):
+        validate_production_config()
+
+    # And a key satisfies the gate.
+    monkeypatch.setattr(config, "RESEND_API_KEY", "re_real_key")
+    validate_production_config()
+
+
+def test_verification_off_does_not_require_resend_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(config, "APP_ENV", "production")
+    monkeypatch.setattr(config, "DATABASE_URL", "postgresql://u:p@h:5432/d")
+    monkeypatch.setattr(config, "JWT_SECRET", "real")
+    monkeypatch.setattr(config, "POSTGRES_PASSWORD", "real")
+    monkeypatch.setattr(config, "AI_PROVIDER_API_KEY", "sk-ant-real")
+    monkeypatch.setattr(config, "EMAIL_VERIFICATION_REQUIRED", False)
+    monkeypatch.setattr(config, "RESEND_API_KEY", "")
+    validate_production_config()  # should not raise
+
+
 def test_reports_all_problems_at_once(monkeypatch: pytest.MonkeyPatch) -> None:
     """The gate should surface every misconfiguration in one message,
     not bisect — operators shouldn't have to fix-redeploy three times.

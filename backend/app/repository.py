@@ -223,19 +223,31 @@ def _map_user_row(row: Any) -> dict[str, Any]:
         "email": row["email"],
         "displayName": row["display_name"],
         "createdAt": row["created_at"],
+        "emailVerified": row["email_verified_at"] is not None,
     }
 
 
-def create_user(*, email: str, password_hash: str, display_name: str) -> dict[str, Any]:
+def create_user(
+    *,
+    email: str,
+    password_hash: str,
+    display_name: str,
+    email_verified: bool = True,
+) -> dict[str, Any]:
+    """Insert a user. Pass `email_verified=False` only when the signup flow
+    follows up with a verification code (EMAIL_VERIFICATION_REQUIRED) —
+    accounts created without that flow must stay usable if the flag is
+    enabled later, so the default is verified.
+    """
     user_id = _user_id()
     with get_connection() as connection:
         row = connection.execute(
             """
-            INSERT INTO users (id, email, password_hash, display_name)
-            VALUES (%s, %s, %s, %s)
+            INSERT INTO users (id, email, password_hash, display_name, email_verified_at)
+            VALUES (%s, %s, %s, %s, CASE WHEN %s THEN NOW() ELSE NULL END)
             RETURNING *
             """,
-            (user_id, email, password_hash, display_name),
+            (user_id, email, password_hash, display_name, email_verified),
         ).fetchone()
         connection.commit()
     return _map_user_row(row)
