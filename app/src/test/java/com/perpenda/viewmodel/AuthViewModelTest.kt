@@ -73,6 +73,7 @@ class AuthViewModelTest {
         assertTrue(viewModel.uiState.justAuthenticated)
         assertNull(viewModel.uiState.pendingVerificationEmail)
         assertEquals(listOf("ada@example.com" to "123456"), repo.verifyCalls)
+        assertEquals("Email confirmed — your account is ready.", viewModel.uiState.postAuthNotice)
     }
 
     @Test
@@ -229,6 +230,7 @@ class AuthViewModelTest {
         assertTrue(viewModel.uiState.justAuthenticated)
         assertNull(viewModel.uiState.pendingResetEmail)
         assertEquals("", viewModel.uiState.password)
+        assertEquals("Password updated — you're signed in.", viewModel.uiState.postAuthNotice)
     }
 
     @Test

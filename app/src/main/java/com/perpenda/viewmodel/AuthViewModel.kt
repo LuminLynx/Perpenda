@@ -29,7 +29,10 @@ data class AuthUiState(
     /** Non-null = the password-reset step is showing for this address. */
     val pendingResetEmail: String? = null,
     val verificationCode: String = "",
-    val infoMessage: String? = null
+    val infoMessage: String? = null,
+    /** One-shot success notice shown (as a toast) when navigating into the
+     * app after verify/reset — plain login/signup stays silent as before. */
+    val postAuthNotice: String? = null
 )
 
 class AuthViewModel(
@@ -160,7 +163,8 @@ class AuthViewModel(
                     errorMessage = null,
                     pendingVerificationEmail = null,
                     verificationCode = "",
-                    password = ""
+                    password = "",
+                    postAuthNotice = "Email confirmed — your account is ready."
                 )
             } catch (error: AuthApiException) {
                 uiState.copy(isSubmitting = false, errorMessage = mapErrorMessage(error))
@@ -247,7 +251,8 @@ class AuthViewModel(
                     errorMessage = null,
                     pendingResetEmail = null,
                     verificationCode = "",
-                    password = ""
+                    password = "",
+                    postAuthNotice = "Password updated — you're signed in."
                 )
             } catch (error: AuthApiException) {
                 uiState.copy(isSubmitting = false, errorMessage = mapErrorMessage(error))
@@ -299,7 +304,7 @@ class AuthViewModel(
 
     fun acknowledgeNavigation() {
         if (uiState.justAuthenticated) {
-            uiState = uiState.copy(justAuthenticated = false)
+            uiState = uiState.copy(justAuthenticated = false, postAuthNotice = null)
         }
     }
 
