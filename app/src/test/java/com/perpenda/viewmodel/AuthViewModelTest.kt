@@ -73,6 +73,7 @@ class AuthViewModelTest {
         assertTrue(viewModel.uiState.justAuthenticated)
         assertNull(viewModel.uiState.pendingVerificationEmail)
         assertEquals(listOf("ada@example.com" to "123456"), repo.verifyCalls)
+        assertEquals("Email confirmed — your account is ready.", viewModel.uiState.postAuthNotice)
     }
 
     @Test
@@ -164,6 +165,97 @@ class AuthViewModelTest {
         assertEquals("", viewModel.uiState.verificationCode)
     }
 
+    @Test
+    fun `forgot password requires a plausible email first`() = runTest(dispatcher) {
+        val repo = FakeAuthRepo()
+        val viewModel = AuthViewModel(repo)
+        viewModel.onEmailChanged("not-an-email")
+
+        viewModel.startPasswordReset()
+        advanceUntilIdle()
+
+        assertTrue(repo.resetRequestCalls.isEmpty())
+        assertNotNull(viewModel.uiState.errorMessage)
+    }
+
+    @Test
+    fun `forgot password requests a code and shows the reset step`() = runTest(dispatcher) {
+        val repo = FakeAuthRepo()
+        val viewModel = AuthViewModel(repo)
+        viewModel.onEmailChanged("ada@example.com")
+
+        viewModel.startPasswordReset()
+        advanceUntilIdle()
+
+        assertEquals(listOf("ada@example.com"), repo.resetRequestCalls)
+        assertEquals("ada@example.com", viewModel.uiState.pendingResetEmail)
+        assertEquals("", viewModel.uiState.password)
+        assertNotNull(viewModel.uiState.infoMessage)
+    }
+
+    @Test
+    fun `reset submit validates code and password locally`() = runTest(dispatcher) {
+        val repo = FakeAuthRepo()
+        val viewModel = AuthViewModel(repo)
+        viewModel.onEmailChanged("ada@example.com")
+        viewModel.startPasswordReset()
+        advanceUntilIdle()
+
+        viewModel.onVerificationCodeChanged("123456")
+        viewModel.onPasswordChanged("short")
+        viewModel.submitPasswordReset()
+        advanceUntilIdle()
+
+        assertTrue(repo.resetCalls.isEmpty())
+        assertNotNull(viewModel.uiState.errorMessage)
+    }
+
+    @Test
+    fun `reset success signs the user in`() = runTest(dispatcher) {
+        val repo = FakeAuthRepo()
+        val viewModel = AuthViewModel(repo)
+        viewModel.onEmailChanged("ada@example.com")
+        viewModel.startPasswordReset()
+        advanceUntilIdle()
+
+        viewModel.onVerificationCodeChanged("123456")
+        viewModel.onPasswordChanged("newpassword1")
+        viewModel.submitPasswordReset()
+        advanceUntilIdle()
+
+        assertEquals(
+            listOf(Triple("ada@example.com", "123456", "newpassword1")),
+            repo.resetCalls
+        )
+        assertTrue(viewModel.uiState.justAuthenticated)
+        assertNull(viewModel.uiState.pendingResetEmail)
+        assertEquals("", viewModel.uiState.password)
+        assertEquals("Password updated — you're signed in.", viewModel.uiState.postAuthNotice)
+    }
+
+    @Test
+    fun `expired reset code surfaces the resend hint`() = runTest(dispatcher) {
+        val repo = FakeAuthRepo(
+            resetError = AuthApiException("expired", code = "CODE_EXPIRED", statusCode = 400)
+        )
+        val viewModel = AuthViewModel(repo)
+        viewModel.onEmailChanged("ada@example.com")
+        viewModel.startPasswordReset()
+        advanceUntilIdle()
+
+        viewModel.onVerificationCodeChanged("123456")
+        viewModel.onPasswordChanged("newpassword1")
+        viewModel.submitPasswordReset()
+        advanceUntilIdle()
+
+        assertEquals("ada@example.com", viewModel.uiState.pendingResetEmail)
+        assertFalse(viewModel.uiState.justAuthenticated)
+        assertEquals(
+            "That code expired. Tap \"Resend code\" for a new one.",
+            viewModel.uiState.errorMessage
+        )
+    }
+
     private fun newSignupViewModel(repo: AuthRepository): AuthViewModel {
         val viewModel = AuthViewModel(repo)
         viewModel.setMode(AuthMode.Signup)
@@ -181,10 +273,13 @@ class AuthViewModelTest {
     private class FakeAuthRepo(
         private val signupResult: SignupResult? = null,
         private val verifyError: AuthApiException? = null,
-        private val loginError: AuthApiException? = null
+        private val loginError: AuthApiException? = null,
+        private val resetError: AuthApiException? = null
     ) : AuthRepository {
         val verifyCalls = mutableListOf<Pair<String, String>>()
         val resendCalls = mutableListOf<String>()
+        val resetRequestCalls = mutableListOf<String>()
+        val resetCalls = mutableListOf<Triple<String, String, String>>()
 
         override suspend fun signup(email: String, password: String, displayName: String): SignupResult =
             signupResult ?: error("signup not stubbed")
@@ -202,6 +297,16 @@ class AuthViewModelTest {
 
         override suspend fun resendVerification(email: String) {
             resendCalls += email
+        }
+
+        override suspend fun requestPasswordReset(email: String) {
+            resetRequestCalls += email
+        }
+
+        override suspend fun resetPassword(email: String, code: String, newPassword: String): AuthSession {
+            resetCalls += Triple(email, code, newPassword)
+            resetError?.let { throw it }
+            return AuthSession(token = "jwt", user = User("u-1", email, "Ada"))
         }
 
         override suspend fun refreshSession(): User? = null

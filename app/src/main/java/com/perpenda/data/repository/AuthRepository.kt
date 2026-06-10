@@ -12,6 +12,8 @@ interface AuthRepository {
     suspend fun login(email: String, password: String): AuthSession
     suspend fun verifyEmail(email: String, code: String): AuthSession
     suspend fun resendVerification(email: String)
+    suspend fun requestPasswordReset(email: String)
+    suspend fun resetPassword(email: String, code: String, newPassword: String): AuthSession
     suspend fun refreshSession(): User?
     fun currentUser(): User?
     fun isLoggedIn(): Boolean
@@ -54,6 +56,20 @@ class ApiAuthRepository(
 
     override suspend fun resendVerification(email: String) {
         authApiService.resendVerification(email)
+    }
+
+    override suspend fun requestPasswordReset(email: String) {
+        authApiService.requestPasswordReset(email)
+    }
+
+    override suspend fun resetPassword(
+        email: String,
+        code: String,
+        newPassword: String
+    ): AuthSession {
+        val session = authApiService.resetPassword(email, code, newPassword)
+        persist(session)
+        return session
     }
 
     override suspend fun refreshSession(): User? {

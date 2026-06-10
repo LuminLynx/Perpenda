@@ -26,8 +26,13 @@ data class AuthUiState(
     val justAuthenticated: Boolean = false,
     /** Non-null = the verify-code step is showing for this address. */
     val pendingVerificationEmail: String? = null,
+    /** Non-null = the password-reset step is showing for this address. */
+    val pendingResetEmail: String? = null,
     val verificationCode: String = "",
-    val infoMessage: String? = null
+    val infoMessage: String? = null,
+    /** One-shot success notice shown (as a toast) when navigating into the
+     * app after verify/reset — plain login/signup stays silent as before. */
+    val postAuthNotice: String? = null
 )
 
 class AuthViewModel(
@@ -158,7 +163,8 @@ class AuthViewModel(
                     errorMessage = null,
                     pendingVerificationEmail = null,
                     verificationCode = "",
-                    password = ""
+                    password = "",
+                    postAuthNotice = "Email confirmed — your account is ready."
                 )
             } catch (error: AuthApiException) {
                 uiState.copy(isSubmitting = false, errorMessage = mapErrorMessage(error))
@@ -180,10 +186,99 @@ class AuthViewModel(
     fun cancelVerification() {
         uiState = uiState.copy(
             pendingVerificationEmail = null,
+            pendingResetEmail = null,
             verificationCode = "",
             errorMessage = null,
             infoMessage = null
         )
+    }
+
+    /** "Forgot password?" — request a reset code for the entered email. */
+    fun startPasswordReset() {
+        val email = uiState.email.trim()
+        if (email.isBlank() || !email.contains("@") || !email.contains(".")) {
+            uiState = uiState.copy(errorMessage = "Enter your account's email address first.")
+            return
+        }
+
+        uiState = uiState.copy(isSubmitting = true, errorMessage = null, infoMessage = null)
+        viewModelScope.launch {
+            uiState = try {
+                authRepository.requestPasswordReset(email)
+                uiState.copy(
+                    isSubmitting = false,
+                    pendingResetEmail = email,
+                    verificationCode = "",
+                    password = "",
+                    // The server answers "sent" for any address (so accounts
+                    // can't be probed); phrase the message the same way.
+                    infoMessage = "If $email has an account, a 6-digit reset code is on its way."
+                )
+            } catch (error: AuthApiException) {
+                uiState.copy(isSubmitting = false, errorMessage = mapErrorMessage(error))
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                uiState.copy(isSubmitting = false, errorMessage = "Network error. Please try again.")
+            }
+        }
+    }
+
+    /** Submit the reset code + new password (held in the password field). */
+    fun submitPasswordReset() {
+        val email = uiState.pendingResetEmail ?: return
+        val code = uiState.verificationCode
+        val newPassword = uiState.password
+        val validationError = when {
+            code.length < VERIFICATION_CODE_LENGTH -> "Enter the 6-digit code from the email."
+            newPassword.length < MIN_PASSWORD_LENGTH ->
+                "Password must be at least $MIN_PASSWORD_LENGTH characters."
+            else -> null
+        }
+        if (validationError != null) {
+            uiState = uiState.copy(errorMessage = validationError)
+            return
+        }
+
+        uiState = uiState.copy(isSubmitting = true, errorMessage = null, infoMessage = null)
+        viewModelScope.launch {
+            uiState = try {
+                val session = authRepository.resetPassword(email, code, newPassword)
+                uiState.copy(
+                    isSubmitting = false,
+                    signedInUser = session.user,
+                    justAuthenticated = true,
+                    errorMessage = null,
+                    pendingResetEmail = null,
+                    verificationCode = "",
+                    password = "",
+                    postAuthNotice = "Password updated — you're signed in."
+                )
+            } catch (error: AuthApiException) {
+                uiState.copy(isSubmitting = false, errorMessage = mapErrorMessage(error))
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                uiState.copy(isSubmitting = false, errorMessage = "Network error. Please try again.")
+            }
+        }
+    }
+
+    fun resendResetCode() {
+        val email = uiState.pendingResetEmail ?: return
+        uiState = uiState.copy(errorMessage = null, infoMessage = null)
+        viewModelScope.launch {
+            try {
+                authRepository.requestPasswordReset(email)
+                uiState = uiState.copy(infoMessage = "New code sent to $email.")
+            } catch (error: AuthApiException) {
+                uiState = uiState.copy(errorMessage = mapErrorMessage(error))
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                uiState = uiState.copy(errorMessage = "Network error. Please try again.")
+            }
+        }
     }
 
     private fun resendCode(email: String, silent: Boolean) {
@@ -209,7 +304,7 @@ class AuthViewModel(
 
     fun acknowledgeNavigation() {
         if (uiState.justAuthenticated) {
-            uiState = uiState.copy(justAuthenticated = false)
+            uiState = uiState.copy(justAuthenticated = false, postAuthNotice = null)
         }
     }
 

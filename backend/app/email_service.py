@@ -81,3 +81,18 @@ def send_verification_email(to: str, code: str) -> None:
             "If you didn't create a Perpenda account, you can ignore this email."
         ),
     )
+
+
+def send_password_reset_email(to: str, code: str) -> None:
+    """Send the 6-digit password-reset code. Raises EmailSendError on failure."""
+    get_email_sender().send(
+        to=to,
+        subject=f"{code} is your Perpenda password reset code",
+        text=(
+            f"Your Perpenda password reset code is: {code}\n\n"
+            "Enter it in the app along with your new password. "
+            "The code expires in 15 minutes.\n\n"
+            "If you didn't request a password reset, you can ignore this "
+            "email — your password is unchanged."
+        ),
+    )
