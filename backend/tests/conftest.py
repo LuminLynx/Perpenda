@@ -22,6 +22,7 @@ TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL")
 # (grades → completions, rubric_criteria → rubrics → decision_prompts, etc.).
 _TRUNCATE_TABLES = (
     "auth_attempts",
+    "email_verification_codes",
     "review_schedule",
     "completions",
     "rubric_criteria",

@@ -4,11 +4,14 @@ import com.perpenda.data.auth.AuthApiException
 import com.perpenda.data.auth.AuthApiService
 import com.perpenda.data.auth.TokenStorage
 import com.perpenda.model.AuthSession
+import com.perpenda.model.SignupResult
 import com.perpenda.model.User
 
 interface AuthRepository {
-    suspend fun signup(email: String, password: String, displayName: String): AuthSession
+    suspend fun signup(email: String, password: String, displayName: String): SignupResult
     suspend fun login(email: String, password: String): AuthSession
+    suspend fun verifyEmail(email: String, code: String): AuthSession
+    suspend fun resendVerification(email: String)
     suspend fun refreshSession(): User?
     fun currentUser(): User?
     fun isLoggedIn(): Boolean
@@ -27,16 +30,30 @@ class ApiAuthRepository(
         email: String,
         password: String,
         displayName: String
-    ): AuthSession {
-        val session = authApiService.signup(email, password, displayName)
-        persist(session)
-        return session
+    ): SignupResult {
+        val result = authApiService.signup(email, password, displayName)
+        // Only a real session is persisted; a verification-pending account
+        // has no token yet (it arrives from verifyEmail).
+        if (result is SignupResult.Session) {
+            persist(result.session)
+        }
+        return result
     }
 
     override suspend fun login(email: String, password: String): AuthSession {
         val session = authApiService.login(email, password)
         persist(session)
         return session
+    }
+
+    override suspend fun verifyEmail(email: String, code: String): AuthSession {
+        val session = authApiService.verifyEmail(email, code)
+        persist(session)
+        return session
+    }
+
+    override suspend fun resendVerification(email: String) {
+        authApiService.resendVerification(email)
     }
 
     override suspend fun refreshSession(): User? {

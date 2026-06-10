@@ -47,6 +47,29 @@ AI_PROVIDER_BASE_URL = os.getenv("AI_PROVIDER_BASE_URL", "https://api.anthropic.
 AI_PROVIDER_API_KEY = os.getenv("AI_PROVIDER_API_KEY", "")
 AI_MODEL = os.getenv("AI_MODEL", "claude-sonnet-4-6")
 
+# Email verification gate. Default OFF so the backend can deploy ahead of
+# the Android build that understands the verification flow — the v1.0
+# binary expects a token straight from signup. Flip to true (Railway env)
+# once the updated app ships. Accounts created while the flag is off are
+# marked verified at creation, so enabling it later strands nobody.
+def _parse_bool(raw: str) -> bool:
+    return raw.strip().lower() in ("1", "true", "yes", "on")
+
+
+EMAIL_VERIFICATION_REQUIRED = _parse_bool(os.getenv("EMAIL_VERIFICATION_REQUIRED", "false"))
+
+# Resend (https://resend.com) HTTP API — chosen over SMTP because Railway
+# has a history of blocking outbound SMTP ports. Empty key = the logging
+# sender (dev/CI); production requires a real key when verification is on.
+RESEND_API_KEY = os.getenv("RESEND_API_KEY", "")
+EMAIL_FROM = os.getenv("EMAIL_FROM", "Perpenda <no-reply@perpenda.com>")
+
+# Verification-code policy: short TTL + per-code attempt cap bound
+# guessing within one code; the auth_attempts limiter bounds it across
+# codes. 10^6 codes / 5 attempts / 15 minutes.
+EMAIL_CODE_TTL_MINUTES = int(os.getenv("EMAIL_CODE_TTL_MINUTES", "15"))
+EMAIL_CODE_MAX_ATTEMPTS = int(os.getenv("EMAIL_CODE_MAX_ATTEMPTS", "5"))
+
 # Default kept for local dev; production is required to override (see
 # validate_production_config).
 JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
@@ -174,6 +197,15 @@ def validate_production_config() -> None:
     if not AI_PROVIDER_API_KEY:
         problems.append(
             "AI_PROVIDER_API_KEY is empty; set it via the deploy environment."
+        )
+
+    # When verification is required, a missing email-provider key would
+    # silently route codes to the logging sender — users could never
+    # verify. Fail the deploy instead.
+    if EMAIL_VERIFICATION_REQUIRED and not RESEND_API_KEY:
+        problems.append(
+            "EMAIL_VERIFICATION_REQUIRED is on but RESEND_API_KEY is empty; "
+            "set it via the deploy environment."
         )
 
     if problems:

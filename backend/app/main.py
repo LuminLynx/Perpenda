@@ -20,11 +20,13 @@ from .auth import (
     validate_password,
     verify_login,
 )
-from .config import ALLOWED_HOSTS, validate_production_config
+from .config import ALLOWED_HOSTS, EMAIL_VERIFICATION_REQUIRED, validate_production_config
+from .email_service import EmailSendError, send_verification_email
 from .migrations import run_migrations
 from .repositories import (
     auth_rate_limit_repository,
     completion_repository,
+    email_verification_repository,
     grade_repository,
     path_repository,
     rate_limit_repository,
@@ -71,6 +73,15 @@ class SignupRequest(BaseModel):
 class LoginRequest(BaseModel):
     email: str
     password: str
+
+
+class VerifyEmailRequest(BaseModel):
+    email: str = Field(max_length=320)
+    code: str = Field(min_length=1, max_length=16)
+
+
+class ResendVerificationRequest(BaseModel):
+    email: str = Field(max_length=320)
 
 
 def _envelope_response(*, data, error=None, status_code: int = 200) -> JSONResponse:
@@ -188,6 +199,11 @@ def post_signup(request: SignupRequest) -> JSONResponse:
             email=email,
             password_hash=hash_password(password),
             display_name=display_name,
+            # When verification is required the account starts unverified
+            # and login is gated until the emailed code is confirmed. With
+            # the flag off, accounts are verified at creation so a later
+            # flag flip can't strand them.
+            email_verified=not EMAIL_VERIFICATION_REQUIRED,
         )
     except UniqueViolation:
         # Race: a concurrent signup for the same email won between the
@@ -198,6 +214,21 @@ def post_signup(request: SignupRequest) -> JSONResponse:
             data=None,
             error={"code": "EMAIL_TAKEN", "message": "An account with this email already exists."},
         )
+
+    if EMAIL_VERIFICATION_REQUIRED:
+        # No token until the email is confirmed. A send failure is logged
+        # but still returns 201 — the account exists and the client's
+        # "resend code" path recovers; failing here would orphan it.
+        code = email_verification_repository.issue_code(user["id"])
+        try:
+            send_verification_email(user["email"], code)
+        except EmailSendError as exc:
+            LOGGER.warning("verification email failed for %s: %s", user["id"], exc)
+        return _envelope_response(
+            status_code=201,
+            data={"verificationRequired": True, "user": user},
+        )
+
     token = create_access_token(user["id"])
     return _envelope_response(
         status_code=201,
@@ -238,14 +269,93 @@ def post_login(request: LoginRequest) -> JSONResponse:
     # Successful login clears the failure counter so honest users aren't
     # locked out by their own prior typos.
     auth_rate_limit_repository.clear_auth_attempts(login_key)
+
+    # Verification gate AFTER the password check, so an unverified-account
+    # response is only ever shown to someone holding the right password —
+    # it can't be used to probe which emails have accounts.
+    if EMAIL_VERIFICATION_REQUIRED and row["email_verified_at"] is None:
+        return _envelope_response(
+            status_code=403,
+            data=None,
+            error={
+                "code": "EMAIL_NOT_VERIFIED",
+                "message": "Confirm your email address to sign in. Check your inbox for the code.",
+            },
+        )
+
     user = {
         "id": row["id"],
         "email": row["email"],
         "displayName": row["display_name"],
         "createdAt": row["created_at"],
+        "emailVerified": row["email_verified_at"] is not None,
     }
     token = create_access_token(user["id"])
     return _envelope_response(data={"token": token, "user": user})
+
+
+@app.post("/api/v1/auth/verify-email")
+def post_verify_email(request: VerifyEmailRequest) -> JSONResponse:
+    """Confirm the emailed code; on success return a session token.
+
+    INVALID_CODE deliberately covers unknown email, no pending code, wrong
+    code, and attempt-cap reached — distinguishing them would leak which
+    emails have (unverified) accounts. CODE_EXPIRED is surfaced separately
+    because the user must know to request a resend.
+    """
+    verify_key = f"verify:{request.email.strip().lower()}"
+    try:
+        auth_rate_limit_repository.check_and_record_auth_attempt(verify_key)
+    except RateLimitExceededError as exc:
+        return _rate_limited_response(exc, message="Too many attempts. Try again later.")
+
+    invalid = _envelope_response(
+        status_code=400,
+        data=None,
+        error={"code": "INVALID_CODE", "message": "That code didn't work. Check it and try again."},
+    )
+    user = get_user_by_email(request.email.strip())
+    if user is None:
+        return invalid
+    try:
+        email_verification_repository.verify_code(user["id"], request.code.strip())
+    except email_verification_repository.CodeExpiredError:
+        return _envelope_response(
+            status_code=400,
+            data=None,
+            error={"code": "CODE_EXPIRED", "message": "That code expired. Request a new one."},
+        )
+    except email_verification_repository.VerificationError:
+        return invalid
+
+    auth_rate_limit_repository.clear_auth_attempts(verify_key)
+    verified_user = get_user_by_id(user["id"])
+    token = create_access_token(user["id"])
+    return _envelope_response(data={"token": token, "user": verified_user})
+
+
+@app.post("/api/v1/auth/resend-verification")
+def post_resend_verification(request: ResendVerificationRequest) -> JSONResponse:
+    """Issue a fresh code for an unverified account.
+
+    Always responds 200 {"sent": true} whether or not the email has an
+    account (anti-enumeration); the rate limit bounds the email volume an
+    abuser can trigger toward one address.
+    """
+    resend_key = f"resend:{request.email.strip().lower()}"
+    try:
+        auth_rate_limit_repository.check_and_record_auth_attempt(resend_key)
+    except RateLimitExceededError as exc:
+        return _rate_limited_response(exc, message="Too many attempts. Try again later.")
+
+    user = get_user_by_email(request.email.strip())
+    if user is not None and not user["emailVerified"]:
+        code = email_verification_repository.issue_code(user["id"])
+        try:
+            send_verification_email(user["email"], code)
+        except EmailSendError as exc:
+            LOGGER.warning("verification resend failed for %s: %s", user["id"], exc)
+    return _envelope_response(data={"sent": True})
 
 
 @app.get("/api/v1/auth/me")

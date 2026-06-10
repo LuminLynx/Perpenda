@@ -2,6 +2,7 @@ package com.perpenda.data.auth
 
 import com.perpenda.data.remote.network.ApiConfig
 import com.perpenda.model.AuthSession
+import com.perpenda.model.SignupResult
 import com.perpenda.model.User
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -10,8 +11,10 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 interface AuthApiService {
-    suspend fun signup(email: String, password: String, displayName: String): AuthSession
+    suspend fun signup(email: String, password: String, displayName: String): SignupResult
     suspend fun login(email: String, password: String): AuthSession
+    suspend fun verifyEmail(email: String, code: String): AuthSession
+    suspend fun resendVerification(email: String)
     suspend fun fetchMe(token: String): User
     suspend fun deleteAccount(token: String)
 }
@@ -34,13 +37,21 @@ private class HttpAuthApiService(
         email: String,
         password: String,
         displayName: String
-    ): AuthSession = withContext(Dispatchers.IO) {
+    ): SignupResult = withContext(Dispatchers.IO) {
         val payload = JSONObject()
             .put("email", email)
             .put("password", password)
             .put("displayName", displayName)
         val envelope = request("POST", "api/v1/auth/signup", payload, token = null)
-        parseAuthSession(envelope)
+        val data = envelope.optJSONObject("data")
+            ?: throw AuthApiException("Auth response was empty.")
+        // EMAIL_VERIFICATION_REQUIRED backends return 201 with no token;
+        // the session arrives later from the verify-email call.
+        if (data.optBoolean("verificationRequired", false)) {
+            SignupResult.VerificationRequired(email = email)
+        } else {
+            SignupResult.Session(parseAuthSession(envelope))
+        }
     }
 
     override suspend fun login(email: String, password: String): AuthSession = withContext(Dispatchers.IO) {
@@ -49,6 +60,21 @@ private class HttpAuthApiService(
             .put("password", password)
         val envelope = request("POST", "api/v1/auth/login", payload, token = null)
         parseAuthSession(envelope)
+    }
+
+    override suspend fun verifyEmail(email: String, code: String): AuthSession = withContext(Dispatchers.IO) {
+        val payload = JSONObject()
+            .put("email", email)
+            .put("code", code)
+        val envelope = request("POST", "api/v1/auth/verify-email", payload, token = null)
+        parseAuthSession(envelope)
+    }
+
+    override suspend fun resendVerification(email: String) {
+        withContext(Dispatchers.IO) {
+            val payload = JSONObject().put("email", email)
+            request("POST", "api/v1/auth/resend-verification", payload, token = null)
+        }
     }
 
     override suspend fun fetchMe(token: String): User = withContext(Dispatchers.IO) {

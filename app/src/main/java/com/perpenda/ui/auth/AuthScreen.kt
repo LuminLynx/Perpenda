@@ -62,14 +62,23 @@ fun AuthScreen(
         }
     }
 
-    val screenTitle = if (uiState.mode == AuthMode.Login) "Sign in" else "Create account"
+    val verifyingEmail = uiState.pendingVerificationEmail
+    val screenTitle = when {
+        verifyingEmail != null -> "Confirm your email"
+        uiState.mode == AuthMode.Login -> "Sign in"
+        else -> "Create account"
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(screenTitle) },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(
+                        onClick = {
+                            if (verifyingEmail != null) viewModel.cancelVerification() else onBack()
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
@@ -79,6 +88,24 @@ fun AuthScreen(
             )
         }
     ) { padding ->
+        if (verifyingEmail != null) {
+            VerificationStep(
+                email = verifyingEmail,
+                code = uiState.verificationCode,
+                isSubmitting = uiState.isSubmitting,
+                errorMessage = uiState.errorMessage,
+                infoMessage = uiState.infoMessage,
+                onCodeChanged = viewModel::onVerificationCodeChanged,
+                onSubmit = viewModel::submitVerificationCode,
+                onResend = viewModel::resendVerificationCode,
+                onCancel = viewModel::cancelVerification,
+                modifier = Modifier
+                    .padding(padding)
+                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                    .verticalScroll(rememberScrollState())
+            )
+            return@Scaffold
+        }
         Column(
             modifier = Modifier
                 .padding(padding)
@@ -191,5 +218,73 @@ fun AuthScreen(
                 modifier = Modifier.fillMaxWidth()
             )
         }
+    }
+}
+
+@Composable
+private fun VerificationStep(
+    email: String,
+    code: String,
+    isSubmitting: Boolean,
+    errorMessage: String?,
+    infoMessage: String?,
+    onCodeChanged: (String) -> Unit,
+    onSubmit: () -> Unit,
+    onResend: () -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = "Enter the 6-digit code we sent to $email. It expires in 15 minutes.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        OutlinedTextField(
+            value = code,
+            onValueChange = onCodeChanged,
+            label = { Text("Verification code") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        if (infoMessage != null) {
+            Text(
+                text = infoMessage,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        PrimaryActionButton(
+            text = if (isSubmitting) "Verifying..." else "Verify",
+            onClick = onSubmit,
+            enabled = !isSubmitting,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        TertiaryActionButton(
+            text = "Resend code",
+            onClick = onResend,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        TertiaryActionButton(
+            text = "Use a different account",
+            onClick = onCancel,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
