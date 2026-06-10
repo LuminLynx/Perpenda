@@ -19,7 +19,8 @@ interface AuthRepository {
 
 class ApiAuthRepository(
     private val authApiService: AuthApiService,
-    private val tokenStorage: TokenStorage
+    private val tokenStorage: TokenStorage,
+    private val completionCache: CompletionCache
 ) : AuthRepository {
 
     override suspend fun signup(
@@ -66,12 +67,20 @@ class ApiAuthRepository(
     override fun token(): String? = tokenStorage.getToken()
 
     override fun logout() {
+        // Clear the completion cache BEFORE token storage: the cache key is
+        // derived from the stored userId, which tokenStorage.clear() erases.
+        completionCache.clear()
         tokenStorage.clear()
     }
 
     override suspend fun deleteAccount() {
         val token = tokenStorage.getToken() ?: return
         authApiService.deleteAccount(token)
+        // Same ordering constraint as logout(): the cache needs the stored
+        // userId to find its entry, so it must be cleared first — otherwise
+        // the deleted account's progress stays in (backed-up) SharedPreferences,
+        // breaking the "delete your account and all your data" promise.
+        completionCache.clear()
         tokenStorage.clear()
     }
 

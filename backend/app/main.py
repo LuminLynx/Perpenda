@@ -6,6 +6,7 @@ from fastapi import Depends, FastAPI, Query
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
+from psycopg.errors import UniqueViolation
 from pydantic import BaseModel, Field
 
 from .ai_service import AIServiceError, ai_service_metadata, grade_decision_answer
@@ -182,11 +183,21 @@ def post_signup(request: SignupRequest) -> JSONResponse:
             error={"code": "EMAIL_TAKEN", "message": "An account with this email already exists."},
         )
 
-    user = create_user(
-        email=email,
-        password_hash=hash_password(password),
-        display_name=display_name,
-    )
+    try:
+        user = create_user(
+            email=email,
+            password_hash=hash_password(password),
+            display_name=display_name,
+        )
+    except UniqueViolation:
+        # Race: a concurrent signup for the same email won between the
+        # lookup above and this INSERT; surface the same 409 the lookup
+        # would have produced instead of a 500.
+        return _envelope_response(
+            status_code=409,
+            data=None,
+            error={"code": "EMAIL_TAKEN", "message": "An account with this email already exists."},
+        )
     token = create_access_token(user["id"])
     return _envelope_response(
         status_code=201,
@@ -283,7 +294,7 @@ def get_unit(
     unit_id: str,
     current_user_id: str = Depends(required_user_id),  # noqa: ARG001 — auth gate
 ) -> JSONResponse:
-    unit = unit_repository.get_unit(unit_id)
+    unit = unit_repository.get_unit(unit_id, published_only=True)
     if unit is None:
         return _envelope_response(
             status_code=404,
@@ -445,7 +456,7 @@ def post_grade(
     if get_user_by_id(current_user_id) is None:
         return _account_gone_response()
 
-    unit = unit_repository.get_unit(unit_id)
+    unit = unit_repository.get_unit(unit_id, published_only=True)
     if unit is None:
         return _envelope_response(
             status_code=404,

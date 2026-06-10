@@ -76,11 +76,21 @@ def _map_unit_full(unit_row: Any) -> dict[str, Any]:
     }
 
 
-def get_unit(unit_id: str) -> dict[str, Any] | None:
-    """Return the full 9-slot unit payload, or None if no such unit."""
+def get_unit(unit_id: str, *, published_only: bool = False) -> dict[str, Any] | None:
+    """Return the full 9-slot unit payload, or None if no such unit.
+
+    `published_only=True` treats draft units as absent — the public API
+    endpoints use it so drafts can't be fetched (or graded, burning paid
+    model calls) by guessing ids. The regression-set runner and ingest
+    tooling read with the default `False`, since the grader gate runs
+    against drafts before they're published.
+    """
+    query = "SELECT * FROM units WHERE id = %s"
+    if published_only:
+        query += " AND status = 'published'"
     with get_connection() as connection:
         unit_row = connection.execute(
-            "SELECT * FROM units WHERE id = %s",
+            query,
             (unit_id,),
         ).fetchone()
         if unit_row is None:

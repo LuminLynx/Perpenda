@@ -11,6 +11,7 @@ import com.perpenda.data.repository.CompletionCache
 import com.perpenda.data.repository.PathRepository
 import com.perpenda.model.GradeResult
 import com.perpenda.model.UnitDetail
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -78,6 +79,8 @@ class UnitReaderViewModel(
                     message = error.message.ifBlank { "Couldn't load this unit." },
                     authExpired = error.statusCode == 401
                 )
+            } catch (error: CancellationException) {
+                throw error
             } catch (error: Exception) {
                 UnitReaderUiState.Error(message = "Network error. Pull to retry.")
             }
@@ -130,7 +133,7 @@ class UnitReaderViewModel(
         viewModelScope.launch {
             val outcome: Result<com.perpenda.model.GradeResult> = runCatching {
                 pathRepository.submitGrade(unitId, answer)
-            }
+            }.onFailure { if (it is CancellationException) throw it }
             val pathError = outcome.exceptionOrNull() as? PathApiException
             if (pathError?.statusCode == 401) {
                 _events.send(UnitReaderEvent.AuthExpired)

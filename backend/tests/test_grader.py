@@ -318,7 +318,7 @@ def test_grade_endpoint_returns_404_for_unknown_unit(
     client: TestClient, monkeypatch: pytest.MonkeyPatch, auth_header: dict[str, str]
 ) -> None:
     monkeypatch.setattr("app.main.get_user_by_id", lambda uid: {"id": uid})
-    monkeypatch.setattr(unit_repository, "get_unit", lambda unit_id: None)
+    monkeypatch.setattr(unit_repository, "get_unit", lambda unit_id, **_kwargs: None)
     response = client.post(
         "/api/v1/units/no-such-unit/grade",
         json={"answer": "anything"},
@@ -335,7 +335,7 @@ def test_grade_endpoint_returns_409_when_unit_has_no_rubric(
     monkeypatch.setattr(
         unit_repository,
         "get_unit",
-        lambda unit_id: {"id": unit_id, "rubric": {"criteria": []}},
+        lambda unit_id, **_kwargs: {"id": unit_id, "rubric": {"criteria": []}},
     )
     response = client.post(
         "/api/v1/units/u-1/grade",
@@ -353,7 +353,7 @@ def test_grade_endpoint_returns_502_when_grader_fails(
     monkeypatch.setattr(
         unit_repository,
         "get_unit",
-        lambda unit_id: {
+        lambda unit_id, **_kwargs: {
             "id": unit_id,
             "rubric": {"criteria": [{"id": 1, "text": "c1"}]},
         },
@@ -387,7 +387,7 @@ def test_grade_endpoint_persists_completion_and_grades(
     monkeypatch.setattr(
         unit_repository,
         "get_unit",
-        lambda unit_id: {
+        lambda unit_id, **_kwargs: {
             "id": unit_id,
             "title": "Tokenization",
             "rubric": {"criteria": [{"id": 11, "text": "c1"}, {"id": 12, "text": "c2"}]},
@@ -477,7 +477,7 @@ def test_grade_endpoint_returns_429_when_rate_limited(
     monkeypatch.setattr(
         unit_repository,
         "get_unit",
-        lambda unit_id: {
+        lambda unit_id, **_kwargs: {
             "id": unit_id,
             "rubric": {"criteria": [{"id": 1, "text": "c1"}]},
         },

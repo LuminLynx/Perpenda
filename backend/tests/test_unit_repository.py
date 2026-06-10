@@ -93,6 +93,32 @@ def test_get_unit_handles_missing_decision_prompt(gated_db) -> None:
     assert unit["prereqUnitIds"] == ["unit-a"]
 
 
+def test_get_unit_published_only_hides_drafts(gated_db) -> None:
+    seed = seed_path_with_units(gated_db)
+
+    with gated_db() as conn:
+        conn.execute(
+            """
+            INSERT INTO units (
+                id, path_id, slug, position, title, definition,
+                trade_off_framing, bite_md, depth_md, prereq_unit_ids, status
+            ) VALUES
+                ('unit-draft', 'path-llm-pms', 'monitoring', 3,
+                 'Monitoring', 'def', 'framing', 'bite', 'depth', '{}', 'draft')
+            """,
+        )
+        conn.commit()
+
+    from app.repositories import unit_repository
+
+    # The public-endpoint read treats the draft as absent...
+    assert unit_repository.get_unit("unit-draft", published_only=True) is None
+    # ...while the default read (regression runner, ingest tooling) sees it,
+    # and published units pass either way.
+    assert unit_repository.get_unit("unit-draft") is not None
+    assert unit_repository.get_unit(seed["unit_a_id"], published_only=True) is not None
+
+
 def test_list_units_for_path_returns_manifest_only(gated_db) -> None:
     seed = seed_path_with_units(gated_db)
 

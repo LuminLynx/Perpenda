@@ -135,6 +135,34 @@ def test_signup_returns_429_when_rate_limited(monkeypatch) -> None:
     assert response.json()["error"]["code"] == "RATE_LIMITED"
 
 
+def test_signup_race_returns_409_not_500(monkeypatch) -> None:
+    # Two concurrent signups for the same email can both pass the
+    # get_user_by_email check; the loser's INSERT hits the users.email
+    # UNIQUE constraint and must surface as the same 409 EMAIL_TAKEN,
+    # not an unhandled 500.
+    from psycopg.errors import UniqueViolation
+
+    monkeypatch.setattr(
+        auth_rate_limit_repository,
+        "check_and_record_auth_attempt",
+        lambda *_args, **_kwargs: None,
+    )
+    monkeypatch.setattr("app.main.get_user_by_email", lambda _email: None)
+
+    def _lose_insert_race(**_kwargs):
+        raise UniqueViolation("duplicate key value violates unique constraint")
+
+    monkeypatch.setattr("app.main.create_user", _lose_insert_race)
+
+    client = TestClient(app)
+    response = client.post(
+        "/api/v1/auth/signup",
+        json={"email": "raced@example.com", "password": "whatever123", "displayName": "Ada"},
+    )
+    assert response.status_code == 409
+    assert response.json()["error"]["code"] == "EMAIL_TAKEN"
+
+
 def test_auth_rate_limit_blocks_after_cap_then_clears(gated_db) -> None:
     key = "login:victim@example.com"
     # check+record is atomic: each call records one attempt; the cap+1-th

@@ -378,6 +378,9 @@ def grade_decision_answer(unit: dict[str, Any], answer: str) -> GraderOutput:
         response = client.messages.create(
             model=AI_MODEL,
             max_tokens=4000,
+            # Pinned: regression-set agreement is a ship gate, and default
+            # sampling (temperature 1.0) adds avoidable run-to-run noise.
+            temperature=0.0,
             system=[
                 {"type": "text", "text": GRADER_SYSTEM_PROMPT},
                 {
