@@ -82,7 +82,7 @@ def test_list_completions_returns_user_completions(
 def test_get_path_returns_404_envelope(
     client: TestClient, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(path_repository, "get_path", lambda _id: None)
+    monkeypatch.setattr(path_repository, "get_path", lambda _id, **_kwargs: None)
     response = client.get("/api/v1/paths/missing")
     assert response.status_code == 404
     body = response.json()
@@ -94,7 +94,7 @@ def test_get_path_returns_404_envelope(
 def test_get_unit_returns_404_envelope(
     client: TestClient, monkeypatch: pytest.MonkeyPatch, auth_header: dict[str, str]
 ) -> None:
-    monkeypatch.setattr(unit_repository, "get_unit", lambda _id: None)
+    monkeypatch.setattr(unit_repository, "get_unit", lambda _id, **_kwargs: None)
     response = client.get("/api/v1/units/missing", headers=auth_header)
     assert response.status_code == 404
     body = response.json()

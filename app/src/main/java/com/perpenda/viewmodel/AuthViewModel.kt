@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.perpenda.data.auth.AuthApiException
 import com.perpenda.data.repository.AuthRepository
 import com.perpenda.model.User
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 enum class AuthMode { Login, Signup }
@@ -85,6 +86,8 @@ class AuthViewModel(
                 )
             } catch (error: AuthApiException) {
                 uiState.copy(isSubmitting = false, errorMessage = mapErrorMessage(error))
+            } catch (error: CancellationException) {
+                throw error
             } catch (error: Exception) {
                 uiState.copy(isSubmitting = false, errorMessage = "Network error. Please try again.")
             }

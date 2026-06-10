@@ -12,6 +12,7 @@ import com.perpenda.data.repository.PathRepository
 import com.perpenda.model.Path
 import com.perpenda.model.ReviewDue
 import com.perpenda.model.UnitManifestEntry
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -114,6 +115,7 @@ class PathHomeViewModel(
                 // are intentionally swallowed — we fall through to whatever
                 // is already cached locally, which is the v1 baseline.
                 runCatching { pathRepository.syncCompletedUnits() }
+                    .onFailure { if (it is CancellationException) throw it }
 
                 val path = pathRepository.getPath(pathId)
                 val completed = completionCache.completedUnitIds()
@@ -123,6 +125,7 @@ class PathHomeViewModel(
                 // screen actually depends on; a failure here yields an
                 // empty list and never degrades Loaded or nextUnit.
                 val reviewsDue = runCatching { pathRepository.listDueReviews() }
+                    .onFailure { if (it is CancellationException) throw it }
                     .getOrDefault(emptyList())
                 PathHomeUiState.Loaded(
                     path = path,
@@ -140,6 +143,8 @@ class PathHomeViewModel(
                     message = error.message.ifBlank { "Couldn't load the path." },
                     authExpired = error.statusCode == 401
                 )
+            } catch (error: CancellationException) {
+                throw error
             } catch (error: Exception) {
                 PathHomeUiState.Error(message = "Network error. Pull to retry.")
             }

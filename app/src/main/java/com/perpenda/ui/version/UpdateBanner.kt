@@ -41,9 +41,13 @@ fun UpdateBanner(viewModel: UpdateBannerViewModel) {
             .background(colors.bannerTint)
             .border(1.dp, colors.hairline, RoundedCornerShape(2.dp))
             .clickable {
-                context.startActivity(
-                    Intent(Intent.ACTION_VIEW, Uri.parse(available.downloadUrl))
-                )
+                // No browser installed (or a malformed downloadUrl in
+                // latest.json) must not crash the app.
+                runCatching {
+                    context.startActivity(
+                        Intent(Intent.ACTION_VIEW, Uri.parse(available.downloadUrl))
+                    )
+                }
             }
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,

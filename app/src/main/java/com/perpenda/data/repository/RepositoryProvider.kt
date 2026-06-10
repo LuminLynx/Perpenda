@@ -36,7 +36,8 @@ object RepositoryProvider {
         val config = ApiConfig.fromBuildConfig()
         ApiAuthRepository(
             authApiService = AuthApiServiceFactory.create(config),
-            tokenStorage = storage
+            tokenStorage = storage,
+            completionCache = requireCompletionCache()
         )
     }
 
