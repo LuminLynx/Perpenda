@@ -3,6 +3,7 @@ package com.perpenda.data.repository
 import com.perpenda.data.auth.AuthApiService
 import com.perpenda.data.auth.TokenStorage
 import com.perpenda.model.AuthSession
+import com.perpenda.model.SignupResult
 import com.perpenda.model.User
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -94,11 +95,16 @@ class ApiAuthRepositoryTest {
     private class FakeAuthApiService : AuthApiService {
         var deleteCalls = 0
 
-        override suspend fun signup(email: String, password: String, displayName: String) =
-            AuthSession(token = "jwt", user = User("user-1", email, displayName))
+        override suspend fun signup(email: String, password: String, displayName: String): SignupResult =
+            SignupResult.Session(AuthSession(token = "jwt", user = User("user-1", email, displayName)))
 
         override suspend fun login(email: String, password: String) =
             AuthSession(token = "jwt", user = User("user-1", email, "Name"))
+
+        override suspend fun verifyEmail(email: String, code: String) =
+            AuthSession(token = "jwt", user = User("user-1", email, "Name"))
+
+        override suspend fun resendVerification(email: String) = Unit
 
         override suspend fun fetchMe(token: String) = User("user-1", "a@b.com", "Name")
 
