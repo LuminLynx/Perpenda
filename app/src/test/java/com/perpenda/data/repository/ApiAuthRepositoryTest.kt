@@ -106,6 +106,11 @@ class ApiAuthRepositoryTest {
 
         override suspend fun resendVerification(email: String) = Unit
 
+        override suspend fun requestPasswordReset(email: String) = Unit
+
+        override suspend fun resetPassword(email: String, code: String, newPassword: String) =
+            AuthSession(token = "jwt", user = User("user-1", email, "Name"))
+
         override suspend fun fetchMe(token: String) = User("user-1", "a@b.com", "Name")
 
         override suspend fun deleteAccount(token: String) {

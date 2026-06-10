@@ -63,7 +63,9 @@ fun AuthScreen(
     }
 
     val verifyingEmail = uiState.pendingVerificationEmail
+    val resettingEmail = uiState.pendingResetEmail
     val screenTitle = when {
+        resettingEmail != null -> "Reset password"
         verifyingEmail != null -> "Confirm your email"
         uiState.mode == AuthMode.Login -> "Sign in"
         else -> "Create account"
@@ -76,7 +78,11 @@ fun AuthScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            if (verifyingEmail != null) viewModel.cancelVerification() else onBack()
+                            if (verifyingEmail != null || resettingEmail != null) {
+                                viewModel.cancelVerification()
+                            } else {
+                                onBack()
+                            }
                         }
                     ) {
                         Icon(
@@ -88,6 +94,26 @@ fun AuthScreen(
             )
         }
     ) { padding ->
+        if (resettingEmail != null) {
+            ResetPasswordStep(
+                email = resettingEmail,
+                code = uiState.verificationCode,
+                newPassword = uiState.password,
+                isSubmitting = uiState.isSubmitting,
+                errorMessage = uiState.errorMessage,
+                infoMessage = uiState.infoMessage,
+                onCodeChanged = viewModel::onVerificationCodeChanged,
+                onPasswordChanged = viewModel::onPasswordChanged,
+                onSubmit = viewModel::submitPasswordReset,
+                onResend = viewModel::resendResetCode,
+                onCancel = viewModel::cancelVerification,
+                modifier = Modifier
+                    .padding(padding)
+                    .padding(horizontal = 20.dp, vertical = 12.dp)
+                    .verticalScroll(rememberScrollState())
+            )
+            return@Scaffold
+        }
         if (verifyingEmail != null) {
             VerificationStep(
                 email = verifyingEmail,
@@ -217,7 +243,102 @@ fun AuthScreen(
                 },
                 modifier = Modifier.fillMaxWidth()
             )
+
+            if (uiState.mode == AuthMode.Login) {
+                TertiaryActionButton(
+                    text = "Forgot password?",
+                    onClick = viewModel::startPasswordReset,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
+    }
+}
+
+@Composable
+private fun ResetPasswordStep(
+    email: String,
+    code: String,
+    newPassword: String,
+    isSubmitting: Boolean,
+    errorMessage: String?,
+    infoMessage: String?,
+    onCodeChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onSubmit: () -> Unit,
+    onResend: () -> Unit,
+    onCancel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = "Enter the 6-digit code we sent to $email and choose a new password. The code expires in 15 minutes.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        OutlinedTextField(
+            value = code,
+            onValueChange = onCodeChanged,
+            label = { Text("Reset code") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        OutlinedTextField(
+            value = newPassword,
+            onValueChange = onPasswordChanged,
+            label = { Text("New password") },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = PasswordVisualTransformation(),
+            supportingText = {
+                Text(
+                    text = "At least 8 characters",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        if (infoMessage != null) {
+            Text(
+                text = infoMessage,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+        if (errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
+
+        PrimaryActionButton(
+            text = if (isSubmitting) "Resetting..." else "Set new password",
+            onClick = onSubmit,
+            enabled = !isSubmitting,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        TertiaryActionButton(
+            text = "Resend code",
+            onClick = onResend,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        TertiaryActionButton(
+            text = "Back to sign in",
+            onClick = onCancel,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 

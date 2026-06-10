@@ -15,6 +15,8 @@ interface AuthApiService {
     suspend fun login(email: String, password: String): AuthSession
     suspend fun verifyEmail(email: String, code: String): AuthSession
     suspend fun resendVerification(email: String)
+    suspend fun requestPasswordReset(email: String)
+    suspend fun resetPassword(email: String, code: String, newPassword: String): AuthSession
     suspend fun fetchMe(token: String): User
     suspend fun deleteAccount(token: String)
 }
@@ -75,6 +77,26 @@ private class HttpAuthApiService(
             val payload = JSONObject().put("email", email)
             request("POST", "api/v1/auth/resend-verification", payload, token = null)
         }
+    }
+
+    override suspend fun requestPasswordReset(email: String) {
+        withContext(Dispatchers.IO) {
+            val payload = JSONObject().put("email", email)
+            request("POST", "api/v1/auth/request-password-reset", payload, token = null)
+        }
+    }
+
+    override suspend fun resetPassword(
+        email: String,
+        code: String,
+        newPassword: String
+    ): AuthSession = withContext(Dispatchers.IO) {
+        val payload = JSONObject()
+            .put("email", email)
+            .put("code", code)
+            .put("newPassword", newPassword)
+        val envelope = request("POST", "api/v1/auth/reset-password", payload, token = null)
+        parseAuthSession(envelope)
     }
 
     override suspend fun fetchMe(token: String): User = withContext(Dispatchers.IO) {

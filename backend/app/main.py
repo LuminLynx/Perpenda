@@ -21,13 +21,14 @@ from .auth import (
     verify_login,
 )
 from .config import ALLOWED_HOSTS, EMAIL_VERIFICATION_REQUIRED, validate_production_config
-from .email_service import EmailSendError, send_verification_email
+from .email_service import EmailSendError, send_password_reset_email, send_verification_email
 from .migrations import run_migrations
 from .repositories import (
     auth_rate_limit_repository,
     completion_repository,
     email_verification_repository,
     grade_repository,
+    password_reset_repository,
     path_repository,
     rate_limit_repository,
     review_repository,
@@ -82,6 +83,16 @@ class VerifyEmailRequest(BaseModel):
 
 class ResendVerificationRequest(BaseModel):
     email: str = Field(max_length=320)
+
+
+class RequestPasswordResetRequest(BaseModel):
+    email: str = Field(max_length=320)
+
+
+class ResetPasswordRequest(BaseModel):
+    email: str = Field(max_length=320)
+    code: str = Field(min_length=1, max_length=16)
+    newPassword: str = Field(max_length=1024)
 
 
 def _envelope_response(*, data, error=None, status_code: int = 200) -> JSONResponse:
@@ -356,6 +367,87 @@ def post_resend_verification(request: ResendVerificationRequest) -> JSONResponse
         except EmailSendError as exc:
             LOGGER.warning("verification resend failed for %s: %s", user["id"], exc)
     return _envelope_response(data={"sent": True})
+
+
+@app.post("/api/v1/auth/request-password-reset")
+def post_request_password_reset(request: RequestPasswordResetRequest) -> JSONResponse:
+    """Email a reset code to an account's address.
+
+    Always responds 200 {"sent": true} whether or not the email has an
+    account (anti-enumeration), mirroring resend-verification; the rate
+    limit bounds the email volume an abuser can trigger at one address.
+    Unverified accounts may reset too — redeeming proves inbox ownership.
+    """
+    reset_key = f"reset:{request.email.strip().lower()}"
+    try:
+        auth_rate_limit_repository.check_and_record_auth_attempt(reset_key)
+    except RateLimitExceededError as exc:
+        return _rate_limited_response(exc, message="Too many attempts. Try again later.")
+
+    user = get_user_by_email(request.email.strip())
+    if user is not None:
+        code = password_reset_repository.issue_code(user["id"])
+        try:
+            send_password_reset_email(user["email"], code)
+        except EmailSendError as exc:
+            LOGGER.warning("password reset email failed for %s: %s", user["id"], exc)
+    return _envelope_response(data={"sent": True})
+
+
+@app.post("/api/v1/auth/reset-password")
+def post_reset_password(request: ResetPasswordRequest) -> JSONResponse:
+    """Redeem a reset code and set the new password; returns a session.
+
+    Same error discipline as verify-email: INVALID_CODE covers unknown
+    email / no pending code / wrong code / attempt cap, CODE_EXPIRED is
+    distinct so the client knows to offer a fresh code. The new password
+    goes through the same validator as signup. Note: existing JWTs stay
+    valid until expiry (stateless tokens, no revocation — the documented
+    7-day bound applies).
+    """
+    try:
+        new_password = validate_password(request.newPassword)
+    except AuthError as error:
+        return _envelope_response(
+            status_code=error.status_code,
+            data=None,
+            error={"code": error.code, "message": str(error)},
+        )
+
+    confirm_key = f"reset-confirm:{request.email.strip().lower()}"
+    try:
+        auth_rate_limit_repository.check_and_record_auth_attempt(confirm_key)
+    except RateLimitExceededError as exc:
+        return _rate_limited_response(exc, message="Too many attempts. Try again later.")
+
+    invalid = _envelope_response(
+        status_code=400,
+        data=None,
+        error={"code": "INVALID_CODE", "message": "That code didn't work. Check it and try again."},
+    )
+    user = get_user_by_email(request.email.strip())
+    if user is None:
+        return invalid
+    try:
+        password_reset_repository.redeem_code_and_set_password(
+            user["id"], request.code.strip(), hash_password(new_password)
+        )
+    except password_reset_repository.CodeExpiredError:
+        return _envelope_response(
+            status_code=400,
+            data=None,
+            error={"code": "CODE_EXPIRED", "message": "That code expired. Request a new one."},
+        )
+    except password_reset_repository.VerificationError:
+        return invalid
+
+    # Ownership + new password proven: clear the throttles the user may
+    # have tripped while locked out, and sign them in directly.
+    auth_rate_limit_repository.clear_auth_attempts(confirm_key)
+    auth_rate_limit_repository.clear_auth_attempts(f"login:{request.email.strip().lower()}")
+    refreshed = get_user_by_id(user["id"])
+    token = create_access_token(user["id"])
+    return _envelope_response(data={"token": token, "user": refreshed})
 
 
 @app.get("/api/v1/auth/me")
