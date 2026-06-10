@@ -108,7 +108,7 @@ def test_full_forgot_password_round_trip(gated_db, monkeypatch, sent_emails) -> 
 
     signup = client.post(
         "/api/v1/auth/signup",
-        json={"email": "ada@example.com", "password": "oldpassword1", "displayName": "Ada"},
+        json={"email": "ada@example.com", "password": "oldpassword1", "displayName": "Ada Lovelace"},
     )
     assert signup.status_code == 201
 
@@ -169,7 +169,7 @@ def test_reset_also_verifies_an_unverified_account(
     client = TestClient(app)
     client.post(
         "/api/v1/auth/signup",
-        json={"email": "ada@example.com", "password": "oldpassword1", "displayName": "Ada"},
+        json={"email": "ada@example.com", "password": "oldpassword1", "displayName": "Ada Lovelace"},
     )
 
     client.post("/api/v1/auth/request-password-reset", json={"email": "ada@example.com"})

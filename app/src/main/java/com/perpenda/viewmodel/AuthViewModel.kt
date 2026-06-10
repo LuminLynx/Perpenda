@@ -70,8 +70,8 @@ class AuthViewModel(
             email.isBlank() -> "Email is required."
             !email.contains("@") || !email.contains(".") -> "Enter a valid email address."
             password.length < MIN_PASSWORD_LENGTH -> "Password must be at least $MIN_PASSWORD_LENGTH characters."
-            mode == AuthMode.Signup && displayName.length < MIN_DISPLAY_NAME_LENGTH -> {
-                "Display name must be at least $MIN_DISPLAY_NAME_LENGTH characters."
+            mode == AuthMode.Signup && !isFirstAndLastName(displayName) -> {
+                "Enter your first and last name."
             }
             else -> null
         }
@@ -323,7 +323,7 @@ class AuthViewModel(
             "INVALID_CREDENTIALS" -> "Invalid email or password."
             "WEAK_PASSWORD" -> "Password must be at least $MIN_PASSWORD_LENGTH characters."
             "INVALID_EMAIL" -> "Enter a valid email address."
-            "INVALID_DISPLAY_NAME" -> "Display name must be 2-50 characters."
+            "INVALID_DISPLAY_NAME" -> "Enter your first and last name."
             "INVALID_CODE" -> "That code didn't work. Check it and try again."
             "CODE_EXPIRED" -> "That code expired. Tap \"Resend code\" for a new one."
             "RATE_LIMITED" -> "Too many attempts. Wait a bit and try again."
@@ -333,8 +333,13 @@ class AuthViewModel(
 
     companion object {
         private const val MIN_PASSWORD_LENGTH = 8
-        private const val MIN_DISPLAY_NAME_LENGTH = 2
         private const val VERIFICATION_CODE_LENGTH = 6
+
+        /** Mirrors the backend rule: 2+ whitespace-separated parts, 2+ chars each. */
+        private fun isFirstAndLastName(name: String): Boolean {
+            val parts = name.trim().split(Regex("\\s+"))
+            return parts.size >= 2 && parts.all { it.length >= 2 }
+        }
 
         fun factory(authRepository: AuthRepository): ViewModelProvider.Factory =
             object : ViewModelProvider.Factory {

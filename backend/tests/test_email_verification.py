@@ -74,7 +74,7 @@ def test_signup_with_verification_required_returns_no_token(
     client = TestClient(app)
     response = client.post(
         "/api/v1/auth/signup",
-        json={"email": "new@example.com", "password": "whatever123", "displayName": "Ada"},
+        json={"email": "new@example.com", "password": "whatever123", "displayName": "Ada Lovelace"},
     )
 
     assert response.status_code == 201
@@ -104,7 +104,7 @@ def test_signup_with_flag_off_keeps_current_behavior(
     client = TestClient(app)
     response = client.post(
         "/api/v1/auth/signup",
-        json={"email": "new@example.com", "password": "whatever123", "displayName": "Ada"},
+        json={"email": "new@example.com", "password": "whatever123", "displayName": "Ada Lovelace"},
     )
 
     assert response.status_code == 201
@@ -212,7 +212,7 @@ def test_full_signup_verify_login_round_trip(
 
     signup = client.post(
         "/api/v1/auth/signup",
-        json={"email": "ada@example.com", "password": "whatever123", "displayName": "Ada"},
+        json={"email": "ada@example.com", "password": "whatever123", "displayName": "Ada Lovelace"},
     )
     assert signup.status_code == 201
     assert signup.json()["data"]["verificationRequired"] is True
@@ -262,7 +262,7 @@ def test_resend_replaces_the_outstanding_code(gated_db, monkeypatch, sent_emails
     client = TestClient(app)
     client.post(
         "/api/v1/auth/signup",
-        json={"email": "ada@example.com", "password": "whatever123", "displayName": "Ada"},
+        json={"email": "ada@example.com", "password": "whatever123", "displayName": "Ada Lovelace"},
     )
     first_code = sent_emails[0]["code"]
 
@@ -318,7 +318,7 @@ def test_grandfathered_user_logs_in_with_verification_on(
     client = TestClient(app)
     client.post(
         "/api/v1/auth/signup",
-        json={"email": "old@example.com", "password": "whatever123", "displayName": "Old"},
+        json={"email": "old@example.com", "password": "whatever123", "displayName": "Old Timer"},
     )
 
     monkeypatch.setattr("app.main.EMAIL_VERIFICATION_REQUIRED", True)

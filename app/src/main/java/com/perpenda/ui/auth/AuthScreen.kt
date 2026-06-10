@@ -164,6 +164,13 @@ fun AuthScreen(
                     keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.Words
                     ),
+                    supportingText = {
+                        Text(
+                            text = "First and last name",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
                     modifier = Modifier.fillMaxWidth()
                 )
             }

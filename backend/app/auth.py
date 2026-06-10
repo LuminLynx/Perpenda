@@ -86,10 +86,20 @@ def validate_password(password: str) -> str:
 
 
 def validate_display_name(display_name: str) -> str:
-    cleaned = display_name.strip()
+    cleaned = " ".join(display_name.split())
     if not (MIN_DISPLAY_NAME_LENGTH <= len(cleaned) <= MAX_DISPLAY_NAME_LENGTH):
         raise AuthError(
             f"Display name must be {MIN_DISPLAY_NAME_LENGTH}-{MAX_DISPLAY_NAME_LENGTH} characters.",
+            code="INVALID_DISPLAY_NAME",
+            status_code=400,
+        )
+    # First and last name required: at least two whitespace-separated
+    # parts of 2+ characters each. Internal whitespace is collapsed above,
+    # so "Ada   Lovelace" normalizes instead of failing.
+    parts = cleaned.split(" ")
+    if len(parts) < 2 or any(len(part) < 2 for part in parts):
+        raise AuthError(
+            "Enter your first and last name.",
             code="INVALID_DISPLAY_NAME",
             status_code=400,
         )
