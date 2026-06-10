@@ -79,7 +79,12 @@ data class PerpendaColors(
     val onUnsettledTint: Color,
     val bannerTint: Color,        // review-needed banner bg (ochre-tint)
     val onBannerTint: Color,
-    val errorTint: Color
+    val errorTint: Color,
+    // Transient success notice (CenterNotice). Deliberately asymmetric:
+    // light mode reads as a quiet paper card (same treatment as the About
+    // screen's ActionCards), dark mode keeps the oxblood completion tint.
+    val noticeTint: Color,
+    val onNoticeTint: Color
 )
 
 val PerpendaLight = PerpendaColors(
@@ -95,7 +100,9 @@ val PerpendaLight = PerpendaColors(
     onUnsettledTint = Color(0xFF384654),
     bannerTint = Color(0xFFF1E8D0),
     onBannerTint = Color(0xFF6A5012),
-    errorTint = Color(0xFFF2DEDB)
+    errorTint = Color(0xFFF2DEDB),
+    noticeTint = Color(0xFFFAF7F0),     // paper-1 — card look
+    onNoticeTint = Color(0xFF1C1815)    // ink-1
 )
 
 val PerpendaDark = PerpendaColors(
@@ -111,5 +118,7 @@ val PerpendaDark = PerpendaColors(
     onUnsettledTint = Color(0xFF9DAFC2),
     bannerTint = Color(0xFF2E2718),
     onBannerTint = Color(0xFFD7B673),
-    errorTint = Color(0xFF381914)
+    errorTint = Color(0xFF381914),
+    noticeTint = Color(0xFF3A1F18),     // oxblood-tint dark (unchanged look)
+    onNoticeTint = Color(0xFFE8C4B8)
 )
