@@ -1,6 +1,5 @@
 package com.perpenda.ui.auth
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,7 +26,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -46,7 +44,8 @@ fun AuthScreen(
     initialMode: AuthMode,
     authRepository: AuthRepository,
     onBack: () -> Unit,
-    onAuthenticated: () -> Unit
+    onAuthenticated: () -> Unit,
+    onNotice: (String) -> Unit = {}
 ) {
     val viewModel: AuthViewModel = viewModel(
         factory = AuthViewModel.factory(authRepository)
@@ -57,15 +56,13 @@ fun AuthScreen(
         viewModel.setMode(initialMode)
     }
 
-    val context = LocalContext.current
     LaunchedEffect(uiState.justAuthenticated) {
         if (uiState.justAuthenticated) {
-            // Verify/reset end with a silent jump into the app; a one-shot
-            // toast confirms the action landed. Plain login/signup stays
-            // quiet (postAuthNotice is null there).
-            uiState.postAuthNotice?.let {
-                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
-            }
+            // Verify/reset end with a silent jump into the app; the
+            // centered notice (drawn by AppNav, above the NavHost, so it
+            // survives the navigation) confirms the action landed. Plain
+            // login/signup stays quiet (postAuthNotice is null there).
+            uiState.postAuthNotice?.let(onNotice)
             viewModel.acknowledgeNavigation()
             onAuthenticated()
         }
