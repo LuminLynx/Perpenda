@@ -91,6 +91,17 @@ sealed interface PathHomeUiState {
 /** One-shot UI event emitted at most once per occurrence (Channel-backed). */
 sealed interface PathHomeEvent {
     object AuthExpired : PathHomeEvent
+
+    /**
+     * A unit transitioned to DONE between two successive loads — i.e. the
+     * user just completed it (typically returning from the unit reader).
+     * `unlockedTitle` is the newly-current unit, null when the path is done.
+     */
+    data class UnitCompleted(
+        val completedTitle: String,
+        val unlockedTitle: String?,
+        val pathComplete: Boolean
+    ) : PathHomeEvent
 }
 
 class PathHomeViewModel(
@@ -106,7 +117,14 @@ class PathHomeViewModel(
     val events: Flow<PathHomeEvent> = _events.receiveAsFlow()
 
     fun load() {
-        uiState = PathHomeUiState.Loading
+        // Refresh silently when content is already on screen: returning
+        // from the unit reader re-loads on every RESUME, and flashing a
+        // full-screen spinner over 99%-unchanged data reads as jank. The
+        // spinner is reserved for the first load (nothing to show yet).
+        val previous = uiState as? PathHomeUiState.Loaded
+        if (previous == null) {
+            uiState = PathHomeUiState.Loading
+        }
         viewModelScope.launch {
             uiState = try {
                 // Best-effort: pull completion state from the server before
@@ -127,26 +145,57 @@ class PathHomeViewModel(
                 val reviewsDue = runCatching { pathRepository.listDueReviews() }
                     .onFailure { if (it is CancellationException) throw it }
                     .getOrDefault(emptyList())
+                val nextUnit = path.units.firstOrNull { states[it.id] == UnitGateState.CURRENT }
+                val pathComplete = path.units.all { it.id in completed }
+
+                // A unit newly DONE since the previous Loaded state means
+                // the user just completed it — surface the moment once.
+                if (previous != null) {
+                    val newlyCompleted = path.units.firstOrNull {
+                        it.id in completed && it.id !in previous.completedUnitIds
+                    }
+                    if (newlyCompleted != null) {
+                        _events.send(
+                            PathHomeEvent.UnitCompleted(
+                                completedTitle = newlyCompleted.title,
+                                unlockedTitle = nextUnit?.title,
+                                pathComplete = pathComplete
+                            )
+                        )
+                    }
+                }
+
                 PathHomeUiState.Loaded(
                     path = path,
                     completedUnitIds = completed,
-                    nextUnit = path.units.firstOrNull { states[it.id] == UnitGateState.CURRENT },
+                    nextUnit = nextUnit,
                     unitStates = states,
-                    pathComplete = path.units.all { it.id in completed },
+                    pathComplete = pathComplete,
                     reviewsDue = reviewsDue
                 )
             } catch (error: PathApiException) {
                 if (error.statusCode == 401) {
                     _events.send(PathHomeEvent.AuthExpired)
+                    // Auth expiry must surface even over stale content —
+                    // the screen routes to sign-in from this state.
+                    PathHomeUiState.Error(
+                        message = error.message.ifBlank { "Couldn't load the path." },
+                        authExpired = true
+                    )
+                } else if (previous != null) {
+                    // Transient server trouble must not replace a perfectly
+                    // good screen with a full-screen error; keep the stale
+                    // content. The next resume retries anyway.
+                    previous
+                } else {
+                    PathHomeUiState.Error(
+                        message = error.message.ifBlank { "Couldn't load the path." }
+                    )
                 }
-                PathHomeUiState.Error(
-                    message = error.message.ifBlank { "Couldn't load the path." },
-                    authExpired = error.statusCode == 401
-                )
             } catch (error: CancellationException) {
                 throw error
             } catch (error: Exception) {
-                PathHomeUiState.Error(message = "Network error. Pull to retry.")
+                previous ?: PathHomeUiState.Error(message = "Network error. Pull to retry.")
             }
         }
     }

@@ -8,6 +8,7 @@ import com.perpenda.model.Grade
 import com.perpenda.model.GradeResult
 import com.perpenda.model.Path
 import com.perpenda.model.UnitDetail
+import com.perpenda.model.UnitManifestEntry
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -212,6 +213,58 @@ class UnitReaderViewModelTest {
         assertNull("AuthExpired must not re-emit while state lingers", second)
     }
 
+    @Test
+    fun `grade success resolves the next unit for the one-tap shortcut`() = runTest(dispatcher) {
+        val path = Path(
+            id = "llm-systems-for-pms",
+            slug = "llm-systems-for-pms",
+            title = "LLM Systems for PMs",
+            description = "desc",
+            units = listOf(
+                UnitManifestEntry("u-1", "a", "Tokenization", 1, "published"),
+                UnitManifestEntry(
+                    "u-2", "b", "Context Window", 2, "published",
+                    prereqUnitIds = listOf("u-1")
+                )
+            )
+        )
+        // The cache already holds u-1, standing in for the completion the
+        // real repository records on submitGrade.
+        val viewModel = newViewModel(
+            repo = FakeRepo(unit = sampleUnit("u-1"), path = path),
+            cache = FakeCache(initial = setOf("u-1"))
+        )
+        advanceUntilIdle()
+
+        viewModel.onAnswerChanged("tokens, not characters")
+        viewModel.submitAnswer()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState as UnitReaderUiState.Loaded
+        assertNotNull(state.gradeResult)
+        assertEquals("u-2", state.nextUnit?.id)
+        assertEquals("Context Window", state.nextUnit?.title)
+    }
+
+    @Test
+    fun `next unit resolution failure leaves the shortcut absent`() = runTest(dispatcher) {
+        // FakeRepo without a path stub throws from getPath — the best-effort
+        // resolution must swallow it and leave nextUnit null.
+        val viewModel = newViewModel(
+            repo = FakeRepo(unit = sampleUnit("u-1")),
+            cache = FakeCache()
+        )
+        advanceUntilIdle()
+
+        viewModel.onAnswerChanged("an answer")
+        viewModel.submitAnswer()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState as UnitReaderUiState.Loaded
+        assertNotNull(state.gradeResult)
+        assertNull(state.nextUnit)
+    }
+
     private fun newViewModel(
         repo: PathRepository,
         cache: CompletionCache,
@@ -241,6 +294,8 @@ private class FakeRepo(
     private val unit: UnitDetail? = null,
     private val getUnitError: Throwable? = null,
     private val submitGradeError: Throwable? = null,
+    /** Optional path manifest for the post-grade next-unit resolution. */
+    private val path: Path? = null,
     /**
      * Optional gate the test resolves manually, so the fake suspends in
      * `submitGrade` until the test signals. Used to verify in-flight
@@ -251,7 +306,7 @@ private class FakeRepo(
     var submitGradeCalls = 0
         private set
 
-    override suspend fun getPath(pathId: String): Path = error("not used")
+    override suspend fun getPath(pathId: String): Path = path ?: error("not used")
 
     override suspend fun getUnit(unitId: String): UnitDetail {
         getUnitError?.let { throw it }

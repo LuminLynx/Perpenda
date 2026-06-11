@@ -361,6 +361,90 @@ class PathHomeViewModelTest {
         assertEquals(UnitGateState.LOCKED, state.unitStates["u-1"])
     }
 
+    @Test
+    fun `resume refresh keeps Loaded on screen instead of flashing Loading`() = runTest(dispatcher) {
+        val path = samplePath(UnitManifestEntry("u-1", "a", "A", 1, "published"))
+        val viewModel = PathHomeViewModel(FakePathRepository(path = path), FakeCompletionCache())
+        viewModel.load()
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState is PathHomeUiState.Loaded)
+
+        viewModel.load()
+        // Before the refresh lands, the screen must still show content.
+        assertTrue(
+            "expected Loaded during silent refresh, got ${viewModel.uiState}",
+            viewModel.uiState is PathHomeUiState.Loaded
+        )
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState is PathHomeUiState.Loaded)
+    }
+
+    @Test
+    fun `refresh failure keeps stale Loaded content`() = runTest(dispatcher) {
+        val path = samplePath(UnitManifestEntry("u-1", "a", "A", 1, "published"))
+        val repository = FakePathRepository(path = path)
+        val viewModel = PathHomeViewModel(repository, FakeCompletionCache())
+        viewModel.load()
+        advanceUntilIdle()
+
+        repository.getPathError = RuntimeException("server down")
+        viewModel.load()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState
+        assertTrue("stale Loaded must survive a failed refresh, got $state", state is PathHomeUiState.Loaded)
+        assertEquals("A", (state as PathHomeUiState.Loaded).path.units.first().title)
+    }
+
+    @Test
+    fun `first load failure still shows the error state`() = runTest(dispatcher) {
+        val repository = FakePathRepository(path = null, error = RuntimeException("down"))
+        val viewModel = PathHomeViewModel(repository, FakeCompletionCache())
+        viewModel.load()
+        advanceUntilIdle()
+        assertTrue(viewModel.uiState is PathHomeUiState.Error)
+    }
+
+    @Test
+    fun `unit newly completed between loads emits UnitCompleted with the unlocked title`() =
+        runTest(dispatcher) {
+            val path = samplePath(
+                UnitManifestEntry("u-1", "a", "A", 1, "published"),
+                UnitManifestEntry("u-2", "b", "B", 2, "published", prereqUnitIds = listOf("u-1"))
+            )
+            val cache = FakeCompletionCache()
+            val viewModel = PathHomeViewModel(FakePathRepository(path = path), cache)
+            viewModel.load()
+            advanceUntilIdle()
+
+            cache.add("u-1") // the unit reader recorded a completion
+            viewModel.load()
+            advanceUntilIdle()
+
+            val event = withTimeoutOrNull(1_000) { viewModel.events.first() }
+            assertTrue("expected UnitCompleted, got $event", event is PathHomeEvent.UnitCompleted)
+            event as PathHomeEvent.UnitCompleted
+            assertEquals("A", event.completedTitle)
+            assertEquals("B", event.unlockedTitle)
+            assertEquals(false, event.pathComplete)
+        }
+
+    @Test
+    fun `unchanged completion state emits no UnitCompleted on refresh`() = runTest(dispatcher) {
+        val path = samplePath(UnitManifestEntry("u-1", "a", "A", 1, "published"))
+        val viewModel = PathHomeViewModel(
+            FakePathRepository(path = path),
+            FakeCompletionCache(initial = setOf("u-1"))
+        )
+        viewModel.load()
+        advanceUntilIdle()
+        viewModel.load()
+        advanceUntilIdle()
+
+        val event = withTimeoutOrNull(50) { viewModel.events.first() }
+        assertNull("no completion delta — no event expected", event)
+    }
+
     private fun samplePath(vararg units: UnitManifestEntry): Path = Path(
         id = "llm-systems-for-pms",
         slug = "llm-systems-for-pms",
@@ -388,8 +472,12 @@ private class FakePathRepository(
         private set
     val markedReviewedUnitIds = mutableListOf<String>()
 
+    /** Settable mid-test: makes the NEXT getPath fail (refresh-failure cases). */
+    var getPathError: Throwable? = null
+
     override suspend fun getPath(pathId: String): Path {
         getPathCalls++
+        getPathError?.let { throw it }
         error?.let { throw it }
         return path ?: error("no path stub set")
     }
