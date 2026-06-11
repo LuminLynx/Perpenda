@@ -57,10 +57,6 @@ app = FastAPI(title="AI-101 Backend", version="0.3.0")
 app.add_middleware(TrustedHostMiddleware, allowed_hosts=ALLOWED_HOSTS)
 
 
-class CompletionRequest(BaseModel):
-    unitId: str = Field(min_length=1)
-
-
 class GradeRequest(BaseModel):
     answer: str = Field(min_length=1, max_length=8000)
 
@@ -506,29 +502,12 @@ def get_unit(
     return _envelope_response(data=unit)
 
 
-@app.post("/api/v1/completions")
-def post_completion(
-    request: CompletionRequest,
-    current_user_id: str = Depends(required_user_id),
-) -> JSONResponse:
-    # A token can outlive its account (stateless JWT, no revocation). Reject a
-    # deleted user here so the write returns a clean 401 instead of an FK 500.
-    if get_user_by_id(current_user_id) is None:
-        return _account_gone_response()
-    try:
-        result = completion_repository.record_completion(
-            user_id=current_user_id,
-            unit_id=request.unitId,
-        )
-    except completion_repository.UnitNotFoundError:
-        return _envelope_response(
-            status_code=404,
-            data=None,
-            error={"code": "UNIT_NOT_FOUND", "message": f"No unit found for id '{request.unitId}'."},
-        )
-
-    status_code = 200 if result["alreadyCompleted"] else 201
-    return _envelope_response(status_code=status_code, data=result)
+# NOTE: POST /api/v1/completions was removed deliberately. It recorded a
+# completion with no grader involvement, letting any authenticated client
+# mark the whole path complete via curl — bypassing the product's core
+# loop. Completions are now recorded exclusively by the grade flow
+# (POST /units/{id}/grade). GET /api/v1/completions (the read used for
+# cross-device sync) remains below.
 
 
 @app.get("/api/v1/completions")

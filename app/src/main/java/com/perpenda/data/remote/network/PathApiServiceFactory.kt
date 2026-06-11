@@ -46,15 +46,6 @@ private class HttpPathApiService(
         parseUnit(envelope.requireData())
     }
 
-    override suspend fun postCompletion(unitId: String): CompletionRecord = withContext(Dispatchers.IO) {
-        val payload = JSONObject().put("unitId", unitId)
-        val envelope = request("POST", "api/v1/completions", payload = payload)
-        val data = envelope.requireData()
-        val completionObj = data.optJSONObject("completion")
-            ?: throw PathApiException("Completion response missing 'completion' object.")
-        parseCompletion(completionObj)
-    }
-
     override suspend fun listCompletions(): List<CompletionRecord> = withContext(Dispatchers.IO) {
         val envelope = request("GET", "api/v1/completions", payload = null)
         val array = envelope.optJSONArray("data") ?: JSONArray()

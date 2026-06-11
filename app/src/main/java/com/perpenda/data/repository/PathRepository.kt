@@ -1,7 +1,6 @@
 package com.perpenda.data.repository
 
 import com.perpenda.data.remote.api.PathApiService
-import com.perpenda.model.CompletionRecord
 import com.perpenda.model.GradeResult
 import com.perpenda.model.Path
 import com.perpenda.model.ReviewDue
@@ -10,7 +9,6 @@ import com.perpenda.model.UnitDetail
 interface PathRepository {
     suspend fun getPath(pathId: String): Path
     suspend fun getUnit(unitId: String): UnitDetail
-    suspend fun markComplete(unitId: String): CompletionRecord
 
     /**
      * F4 — submit the user's open-ended decision-prompt answer for grading.
@@ -53,12 +51,6 @@ class ApiPathRepository(
     override suspend fun getPath(pathId: String): Path = pathApiService.getPath(pathId)
 
     override suspend fun getUnit(unitId: String): UnitDetail = pathApiService.getUnit(unitId)
-
-    override suspend fun markComplete(unitId: String): CompletionRecord {
-        val record = pathApiService.postCompletion(unitId)
-        completionCache.add(record.unitId)
-        return record
-    }
 
     override suspend fun submitGrade(unitId: String, answer: String): GradeResult {
         val result = pathApiService.submitGrade(unitId, answer)

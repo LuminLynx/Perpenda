@@ -487,11 +487,6 @@ private class FakePathRepository(
         return unit ?: error("no unit stub set")
     }
 
-    override suspend fun markComplete(unitId: String): CompletionRecord {
-        error?.let { throw it }
-        return CompletionRecord(1L, "u", "p", unitId, "now")
-    }
-
     override suspend fun submitGrade(unitId: String, answer: String): com.perpenda.model.GradeResult =
         error("not used in PathHomeViewModelTest")
 

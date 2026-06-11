@@ -43,10 +43,15 @@ def test_units_endpoint_requires_auth(client: TestClient) -> None:
     assert response.json()["detail"]["code"] == "AUTH_REQUIRED"
 
 
-def test_completions_endpoint_requires_auth(client: TestClient) -> None:
-    response = client.post("/api/v1/completions", json={"unitId": "any-id"})
-    assert response.status_code == 401
-    assert response.json()["detail"]["code"] == "AUTH_REQUIRED"
+def test_post_completion_endpoint_is_gone(client: TestClient, auth_header) -> None:
+    # POST /completions recorded a completion with no grader involvement —
+    # an authenticated curl could mark the whole path complete. Removed;
+    # completions are recorded exclusively by the grade flow. This guards
+    # against it quietly coming back. (405: GET still serves this path.)
+    response = client.post(
+        "/api/v1/completions", json={"unitId": "any-id"}, headers=auth_header
+    )
+    assert response.status_code == 405
 
 
 def test_list_completions_endpoint_requires_auth(client: TestClient) -> None:
@@ -102,23 +107,6 @@ def test_get_unit_returns_404_envelope(
     assert body["error"]["code"] == "UNIT_NOT_FOUND"
 
 
-def test_post_completion_returns_404_for_unknown_unit(
-    client: TestClient, monkeypatch: pytest.MonkeyPatch, auth_header: dict[str, str]
-) -> None:
-    monkeypatch.setattr("app.main.get_user_by_id", lambda uid: {"id": uid})
-    def _raise(*_args: Any, **_kwargs: Any) -> Any:
-        raise completion_repository.UnitNotFoundError("missing")
-
-    monkeypatch.setattr(completion_repository, "record_completion", _raise)
-    response = client.post(
-        "/api/v1/completions",
-        json={"unitId": "missing"},
-        headers=auth_header,
-    )
-    assert response.status_code == 404
-    assert response.json()["error"]["code"] == "UNIT_NOT_FOUND"
-
-
 # ----- Happy paths via stubbed repositories (no DB) -----
 
 
@@ -144,36 +132,6 @@ def test_get_path_returns_data_envelope(
     assert body["data"]["units"][0]["id"] == "u1"
 
 
-def test_post_completion_returns_201_for_new_and_200_for_repeat(
-    client: TestClient, monkeypatch: pytest.MonkeyPatch, auth_header: dict[str, str]
-) -> None:
-    monkeypatch.setattr("app.main.get_user_by_id", lambda uid: {"id": uid})
-    state = {"called": 0}
-
-    def _record(user_id: str, unit_id: str) -> dict[str, Any]:
-        state["called"] += 1
-        return {
-            "completion": {
-                "id": 1,
-                "userId": user_id,
-                "pathId": "p1",
-                "unitId": unit_id,
-                "completedAt": None,
-            },
-            "alreadyCompleted": state["called"] > 1,
-        }
-
-    monkeypatch.setattr(completion_repository, "record_completion", _record)
-
-    first = client.post("/api/v1/completions", json={"unitId": "u1"}, headers=auth_header)
-    assert first.status_code == 201
-    assert first.json()["data"]["alreadyCompleted"] is False
-
-    second = client.post("/api/v1/completions", json={"unitId": "u1"}, headers=auth_header)
-    assert second.status_code == 200
-    assert second.json()["data"]["alreadyCompleted"] is True
-
-
 # ----- DB-gated end-to-end -----
 
 
@@ -195,21 +153,22 @@ def test_end_to_end_flow_against_real_db(
     assert len(unit["sources"]) == 2
     assert unit["rubric"]["version"] == 1
 
-    post_resp = client.post(
-        "/api/v1/completions",
-        json={"unitId": "unit-a"},
-        headers=auth_header,
+    # Completions are recorded by the grade flow; exercise the same
+    # repository call it uses (the standalone POST endpoint was removed).
+    first = completion_repository.record_completion(
+        user_id=seed["user_id"], unit_id="unit-a"
     )
-    assert post_resp.status_code == 201
-    assert post_resp.json()["data"]["completion"]["unitId"] == "unit-a"
+    assert first["alreadyCompleted"] is False
+    assert first["completion"]["unitId"] == "unit-a"
 
-    repeat = client.post(
-        "/api/v1/completions",
-        json={"unitId": "unit-a"},
-        headers=auth_header,
+    repeat = completion_repository.record_completion(
+        user_id=seed["user_id"], unit_id="unit-a"
     )
-    assert repeat.status_code == 200
-    assert repeat.json()["data"]["alreadyCompleted"] is True
+    assert repeat["alreadyCompleted"] is True
+
+    listed = client.get("/api/v1/completions", headers=auth_header)
+    assert listed.status_code == 200
+    assert [c["unitId"] for c in listed.json()["data"]] == ["unit-a"]
 
 
 def test_end_to_end_review_lifecycle_against_real_db(
@@ -223,10 +182,13 @@ def test_end_to_end_review_lifecycle_against_real_db(
     seed = seed_path_with_units(gated_db)
     auth_header = {"Authorization": f"Bearer {create_access_token(seed['user_id'])}"}
 
-    # 1. Completing a unit seeds its first review (D3).
-    assert client.post(
-        "/api/v1/completions", json={"unitId": "unit-a"}, headers=auth_header
-    ).status_code == 201
+    # 1. Completing a unit seeds its first review (D3). Recorded via the
+    # repository — the same call the grade flow makes (the standalone
+    # POST endpoint was removed).
+    result = completion_repository.record_completion(
+        user_id=seed["user_id"], unit_id="unit-a"
+    )
+    assert result["alreadyCompleted"] is False
 
     # 2. Nothing is due yet — first review is +1 day out (D3).
     due_resp = client.get("/api/v1/review-schedule", headers=auth_header)
@@ -399,16 +361,3 @@ def test_review_schedule_naive_due_before_returns_400(
     )
     assert response.status_code == 400
     assert response.json()["error"]["code"] == "INVALID_DUE_BEFORE"
-
-
-def test_post_completion_rejects_deleted_account(
-    client: TestClient, monkeypatch: pytest.MonkeyPatch, auth_header: dict[str, str]
-) -> None:
-    # A valid token whose account was deleted must get a clean 401, not an
-    # FK 500 (stateless JWT outlives the account; the write guard catches it).
-    monkeypatch.setattr("app.main.get_user_by_id", lambda uid: None)
-    response = client.post(
-        "/api/v1/completions", json={"unitId": "u1"}, headers=auth_header
-    )
-    assert response.status_code == 401
-    assert response.json()["error"]["code"] == "AUTH_REQUIRED"
