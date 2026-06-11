@@ -19,8 +19,8 @@ interface CompletionCache {
  * SharedPreferences-backed completion cache keyed per authenticated user id.
  *
  * Reads / writes silently no-op when no user is signed in (the cache is only
- * meaningful for an authenticated session anyway, since the backing
- * `POST /completions` endpoint is JWT-protected). Keying entries per user
+ * meaningful for an authenticated session anyway, since completions are
+ * recorded by the JWT-protected grade endpoint). Keying entries per user
  * id prevents one account's progress from leaking into another's "Continue"
  * computation when multiple accounts are used on the same device.
  */

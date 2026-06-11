@@ -313,13 +313,6 @@ private class FakeRepo(
         return unit ?: error("no unit stub set")
     }
 
-    override suspend fun markComplete(unitId: String): CompletionRecord {
-        // Path home flow uses this; the unit reader's CTA in P2.3 routes
-        // through submitGrade instead. Tests for the path home cover the
-        // markComplete branch.
-        return CompletionRecord(1L, "u", "p", unitId, "now")
-    }
-
     override suspend fun submitGrade(unitId: String, answer: String): GradeResult {
         submitGradeCalls++
         submitGradeError?.let { throw it }
