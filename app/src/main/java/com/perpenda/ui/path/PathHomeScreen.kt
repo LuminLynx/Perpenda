@@ -184,6 +184,15 @@ private fun LoadedBody(
                 PathNodeRow(
                     unit = unit,
                     state = gate,
+                    // The gate is a prereq graph, not a strict sequence —
+                    // name the units actually missing, by title.
+                    missingPrereqTitles = if (gate == UnitGateState.LOCKED) {
+                        unit.prereqUnitIds
+                            .filterNot { it in state.completedUnitIds }
+                            .mapNotNull { id -> units.firstOrNull { it.id == id }?.title }
+                    } else {
+                        emptyList()
+                    },
                     isFirst = index == 0,
                     isLast = index == units.lastIndex,
                     // The connecting line fills in "behind" completed nodes.
@@ -256,6 +265,7 @@ private fun LoadedBody(
 private fun PathNodeRow(
     unit: UnitManifestEntry,
     state: UnitGateState,
+    missingPrereqTitles: List<String>,
     isFirst: Boolean,
     isLast: Boolean,
     topTraveled: Boolean,
@@ -340,10 +350,20 @@ private fun PathNodeRow(
                     )
                     Text(
                         text = when (state) {
-                            UnitGateState.LOCKED -> "Locked · finish earlier units first"
+                            // Name the actual unmet prereqs — the gate is a
+                            // graph; "finish earlier units first" overstated
+                            // it (units can unlock out of strict order).
+                            UnitGateState.LOCKED ->
+                                if (missingPrereqTitles.isNotEmpty()) {
+                                    "Locked · requires ${missingPrereqTitles.joinToString(", ")}"
+                                } else {
+                                    "Locked"
+                                }
                             UnitGateState.DONE -> "Unit ${unit.position} · completed"
                             UnitGateState.CURRENT -> "Unit ${unit.position} · in progress"
-                            UnitGateState.AVAILABLE -> "Unit ${unit.position} · ${unit.status}"
+                            // Never leak the raw ingest status ("published")
+                            // into user-facing copy.
+                            UnitGateState.AVAILABLE -> "Unit ${unit.position} · available"
                         },
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
