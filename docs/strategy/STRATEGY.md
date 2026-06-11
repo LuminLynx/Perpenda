@@ -230,6 +230,8 @@ The wedge (*decision-grade*) only delivers if the grader is trustworthy. The des
 
 **Discipline (not a feature).** Every published unit ships with regression-set pairs (tiered: `>= 20` flagship, `>= 10` standard). No regression set, no publish.
 
+**Completion bar (T2 amendment, 2026-06).** Originally "grading is completion": any graded answer completed the unit. Live testing showed this let a junk answer ("typing anything") complete a unit, undercutting the path's meaning. Amended: **a submission completes the unit only when at most one rubric criterion is Not met and the answer is not flagged** (3-criterion unit → ≥ 2 met; 4-criterion → ≥ 3). This is deliberately *not* a holistic score — choice A stands: the user always sees the full per-criterion calibration, and the bar is expressed in criteria, never as a percentage grade. Below the bar the unit stays in progress and the learner revises and resubmits; nothing is persisted for non-completing attempts. A completed unit is never un-completed by a later, worse re-submission.
+
 **UX flag (TT2).** LLM grading takes 2–8 seconds. **Stream the rationale as it generates** (Anthropic supports streaming). User sees a useful loading state, not a bare spinner.
 
 ### T1 — Editorial bottleneck

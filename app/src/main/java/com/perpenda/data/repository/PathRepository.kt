@@ -54,7 +54,9 @@ class ApiPathRepository(
 
     override suspend fun submitGrade(unitId: String, answer: String): GradeResult {
         val result = pathApiService.submitGrade(unitId, answer)
-        completionCache.add(result.completion.unitId)
+        // Only a completing grade updates local progress — a below-the-bar
+        // submission returns calibration only (completion == null).
+        result.completion?.let { completionCache.add(it.unitId) }
         return result
     }
 

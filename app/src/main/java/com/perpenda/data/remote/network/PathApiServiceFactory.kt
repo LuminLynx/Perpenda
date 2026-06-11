@@ -57,10 +57,14 @@ private class HttpPathApiService(
         val payload = JSONObject().put("answer", answer)
         val envelope = request("POST", "api/v1/units/$encodedId/grade", payload = payload)
         val data = envelope.requireData()
-        val completion = parseCompletion(
-            data.optJSONObject("completion")
-                ?: throw PathApiException("Grade response missing 'completion' object.")
-        )
+        // "completed" is absent on pre-T2-amendment backends, where every
+        // grade completed — default true keeps that compatibility. A
+        // non-completing response carries completion: null by design.
+        val completed = data.optBoolean("completed", true)
+        val completion = data.optJSONObject("completion")?.let(::parseCompletion)
+        if (completed && completion == null) {
+            throw PathApiException("Grade response missing 'completion' object.")
+        }
         val gradesArray = data.optJSONArray("grades") ?: JSONArray()
         val quotesArray = data.optJSONArray("answerQuotes") ?: JSONArray()
         val quoteByCriterion: Map<Long, String> = buildMap {
@@ -84,7 +88,8 @@ private class HttpPathApiService(
         GradeResult(
             completion = completion,
             grades = grades,
-            flagged = data.optBoolean("flagged")
+            flagged = data.optBoolean("flagged"),
+            completed = completed
         )
     }
 

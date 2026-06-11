@@ -247,6 +247,40 @@ class UnitReaderViewModelTest {
     }
 
     @Test
+    fun `below-the-bar grade shows calibration without completing`() = runTest(dispatcher) {
+        val viewModel = newViewModel(
+            repo = FakeRepo(unit = sampleUnit("u-1"), gradeCompletes = false),
+            cache = FakeCache()
+        )
+        advanceUntilIdle()
+
+        viewModel.onAnswerChanged("a thin answer")
+        viewModel.submitAnswer()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState as UnitReaderUiState.Loaded
+        assertNotNull("grades must still show as calibration", state.gradeResult)
+        assertFalse("unit must stay incomplete", state.isCompleted)
+        assertNull("no next-unit shortcut without completion", state.nextUnit)
+    }
+
+    @Test
+    fun `a worse resubmit cannot un-complete an already completed unit`() = runTest(dispatcher) {
+        val viewModel = newViewModel(
+            repo = FakeRepo(unit = sampleUnit("u-1"), gradeCompletes = false),
+            cache = FakeCache(initial = setOf("u-1"))
+        )
+        advanceUntilIdle()
+
+        viewModel.onAnswerChanged("worse answer than last time")
+        viewModel.submitAnswer()
+        advanceUntilIdle()
+
+        val state = viewModel.uiState as UnitReaderUiState.Loaded
+        assertTrue(state.isCompleted)
+    }
+
+    @Test
     fun `next unit resolution failure leaves the shortcut absent`() = runTest(dispatcher) {
         // FakeRepo without a path stub throws from getPath — the best-effort
         // resolution must swallow it and leave nextUnit null.
@@ -294,6 +328,8 @@ private class FakeRepo(
     private val unit: UnitDetail? = null,
     private val getUnitError: Throwable? = null,
     private val submitGradeError: Throwable? = null,
+    /** false = the grade returns calibration without completing (T2 bar). */
+    private val gradeCompletes: Boolean = true,
     /** Optional path manifest for the post-grade next-unit resolution. */
     private val path: Path? = null,
     /**
@@ -318,12 +354,13 @@ private class FakeRepo(
         submitGradeError?.let { throw it }
         submitGradeGate?.let { return it.await() }
         return GradeResult(
-            completion = CompletionRecord(1L, "u", "p", unitId, "now"),
+            completion = if (gradeCompletes) CompletionRecord(1L, "u", "p", unitId, "now") else null,
             grades = listOf(
                 Grade(1L, 11L, met = true, confidence = 0.9, rationale = "ok", flagged = false, answerQuote = "x"),
                 Grade(2L, 12L, met = false, confidence = 0.85, rationale = "missed", flagged = false, answerQuote = "")
             ),
-            flagged = false
+            flagged = false,
+            completed = gradeCompletes
         )
     }
 

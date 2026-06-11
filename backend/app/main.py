@@ -684,6 +684,40 @@ def post_grade(
             },
         )
 
+    # T2 amendment (2026-06): completion requires the answer to hold up —
+    # AT MOST ONE criterion Not met, and the answer not flagged. Below
+    # that bar nothing is persisted: the grades return inline as
+    # calibration, the unit stays incomplete, and the learner revises and
+    # resubmits. (Grades are keyed to completions, so a non-completing
+    # attempt has nowhere to persist by design.)
+    missed = sum(1 for g in grader_output.grades if not g["met"])
+    completed = (not grader_output.flagged) and missed <= 1
+    if not completed:
+        return _envelope_response(
+            data={
+                "completed": False,
+                "completion": None,
+                "grades": [
+                    {
+                        "id": 0,
+                        "completionId": None,
+                        "criterionId": g["criterion_id"],
+                        "met": g["met"],
+                        "confidence": g["confidence"],
+                        "rationale": g["rationale"],
+                        "flagged": grader_output.flagged,
+                        "createdAt": None,
+                    }
+                    for g in grader_output.grades
+                ],
+                "flagged": grader_output.flagged,
+                "answerQuotes": [
+                    {"criterionId": g["criterion_id"], "quote": g["answer_quote"]}
+                    for g in grader_output.grades
+                ],
+            }
+        )
+
     # Only commit a completion + grades if the grader call succeeded.
     try:
         completion_result = completion_repository.record_completion(
@@ -708,6 +742,7 @@ def post_grade(
 
     return _envelope_response(
         data={
+            "completed": True,
             "completion": completion,
             "grades": grades,
             "flagged": grader_output.flagged,

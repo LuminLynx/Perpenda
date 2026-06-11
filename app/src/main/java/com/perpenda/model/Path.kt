@@ -93,10 +93,17 @@ data class Grade(
 )
 
 data class GradeResult(
-    val completion: CompletionRecord,
+    /**
+     * Null when the answer didn't clear the completion bar (more than one
+     * criterion Not met, or flagged) — grades still return as calibration
+     * but no completion was recorded server-side.
+     */
+    val completion: CompletionRecord?,
     val grades: List<Grade>,
     /** True when the grader flagged the answer for review (T2-B). */
-    val flagged: Boolean
+    val flagged: Boolean,
+    /** True when this submission completed the unit (T2 amendment). */
+    val completed: Boolean = true
 )
 
 /**

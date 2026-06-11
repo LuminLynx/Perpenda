@@ -231,6 +231,20 @@ private fun LoadedBody(
                     flagged = result.flagged,
                     rubricCriteriaById = unit.rubric?.criteria.orEmpty().associateBy { it.id }
                 )
+                if (!state.isCompleted) {
+                    // T2 amendment: more than one criterion missed (or the
+                    // answer was flagged) — calibration shows in full, but
+                    // the unit doesn't complete until a revised answer
+                    // clears the bar.
+                    Text(
+                        text = "Not there yet — a unit completes when at most one " +
+                            "criterion is missed. Revise your answer using the " +
+                            "feedback above and resubmit.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                }
                 // Close the loop at the moment of success: the unit this
                 // completion unlocked is one tap away, no detour through
                 // path home. Resolved best-effort — absent, the pinned
