@@ -11,6 +11,7 @@ import com.perpenda.data.repository.CompletionCache
 import com.perpenda.data.repository.PathRepository
 import com.perpenda.model.GradeResult
 import com.perpenda.model.UnitDetail
+import com.perpenda.model.UnitManifestEntry
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -38,7 +39,13 @@ sealed interface UnitReaderUiState {
          * server-side under T2), or because the local CompletionCache already
          * had the unit id when the screen loaded.
          */
-        val isCompleted: Boolean = false
+        val isCompleted: Boolean = false,
+        /**
+         * The unit unlocked by this completion, resolved best-effort after a
+         * successful grade. Drives the "Next · {title}" action on the grade
+         * results, closing the loop without a detour through path home.
+         */
+        val nextUnit: UnitManifestEntry? = null
     ) : UnitReaderUiState
 }
 
@@ -151,7 +158,9 @@ class UnitReaderViewModel(
                         submitInProgress = false,
                         submitFailure = null,
                         gradeResult = result,
-                        isCompleted = true
+                        isCompleted = true,
+                        // Resolved asynchronously below; null until then.
+                        nextUnit = null
                     )
                 },
                 onFailure = { error ->
@@ -161,6 +170,23 @@ class UnitReaderViewModel(
                     )
                 }
             )
+
+            // Best-effort: resolve the unit this completion unlocked so the
+            // grade results can offer "Next · {title}". A failure just means
+            // no next-unit shortcut — the pinned button on path home remains.
+            if (outcome.isSuccess) {
+                val resolved = runCatching {
+                    val current = uiState as? UnitReaderUiState.Loaded ?: return@launch
+                    val path = pathRepository.getPath(current.unit.pathId)
+                    val states = computeGateStates(path.units, completionCache.completedUnitIds())
+                    path.units.firstOrNull { states[it.id] == UnitGateState.CURRENT }
+                }.onFailure { if (it is CancellationException) throw it }
+                    .getOrNull()
+                val afterFetch = uiState
+                if (resolved != null && afterFetch is UnitReaderUiState.Loaded) {
+                    uiState = afterFetch.copy(nextUnit = resolved)
+                }
+            }
         }
     }
 

@@ -47,7 +47,8 @@ fun AppNav() {
                     completionCache = completionCache,
                     onOpenUnit = { unitId -> navController.navigate("unit/$unitId") },
                     onOpenSettings = { navController.navigate("settings") },
-                    onAuthExpired = { navController.navigate("auth_login") }
+                    onAuthExpired = { navController.navigate("auth_login") },
+                    onNotice = { centerNotice = CenterNotice.of(it) }
                 )
             }
             composable(
@@ -59,6 +60,14 @@ fun AppNav() {
                     pathRepository = pathRepository,
                     completionCache = completionCache,
                     unitId = unitId,
+                    // "Next unit" from the grade results: replace this reader
+                    // on the back stack so back goes home, not through a
+                    // chain of finished readers.
+                    onOpenNextUnit = { nextId ->
+                        navController.navigate("unit/$nextId") {
+                            popUpTo("home") { inclusive = false }
+                        }
+                    },
                     onAuthExpired = {
                         // Pop the unit reader off the back stack on the way to
                         // auth_login. Otherwise hitting back from the sign-in

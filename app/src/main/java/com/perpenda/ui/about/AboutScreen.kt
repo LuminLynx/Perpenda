@@ -63,6 +63,7 @@ fun AboutScreen(
     var signedIn by remember { mutableStateOf(authRepository.isLoggedIn()) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var deleting by remember { mutableStateOf(false) }
+    var deleteError by remember { mutableStateOf<String?>(null) }
 
     AppScreenScaffold(title = "About", subtitle = "Perpenda") { contentPadding ->
         Column(
@@ -123,16 +124,27 @@ fun AboutScreen(
                 onDismissRequest = { if (!deleting) showDeleteConfirm = false },
                 title = { Text("Delete account?") },
                 text = {
-                    Text(
-                        "This permanently deletes your account and all your data — " +
-                            "completions, grades, and review schedule. This cannot be undone."
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(
+                            "This permanently deletes your account and all your data — " +
+                                "completions, grades, and review schedule. This cannot be undone."
+                        )
+                        // A failed deletion must say so — silently leaving the
+                        // dialog open reads as a hang, not a failure.
+                        deleteError?.let {
+                            Text(
+                                text = it,
+                                color = MaterialTheme.colorScheme.error
+                            )
+                        }
+                    }
                 },
                 confirmButton = {
                     TextButton(
                         enabled = !deleting,
                         onClick = {
                             deleting = true
+                            deleteError = null
                             scope.launch {
                                 try {
                                     authRepository.deleteAccount()
@@ -140,7 +152,9 @@ fun AboutScreen(
                                     showDeleteConfirm = false
                                     onAccountDeleted()
                                 } catch (_: Exception) {
-                                    // Deletion failed; leave the account intact.
+                                    // Account left intact; tell the user.
+                                    deleteError =
+                                        "Couldn't delete your account. Check your connection and try again."
                                 } finally {
                                     deleting = false
                                 }
@@ -151,7 +165,10 @@ fun AboutScreen(
                 dismissButton = {
                     TextButton(
                         enabled = !deleting,
-                        onClick = { showDeleteConfirm = false }
+                        onClick = {
+                            showDeleteConfirm = false
+                            deleteError = null
+                        }
                     ) { Text("Cancel") }
                 }
             )

@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -63,7 +64,8 @@ fun PathHomeScreen(
     completionCache: CompletionCache,
     onOpenUnit: (String) -> Unit,
     onOpenSettings: () -> Unit,
-    onAuthExpired: () -> Unit
+    onAuthExpired: () -> Unit,
+    onNotice: (String) -> Unit = {}
 ) {
     val viewModel: PathHomeViewModel = viewModel(
         factory = PathHomeViewModel.factory(pathRepository, completionCache)
@@ -88,6 +90,14 @@ fun PathHomeScreen(
         viewModel.events.collect { event ->
             when (event) {
                 PathHomeEvent.AuthExpired -> onAuthExpired()
+                is PathHomeEvent.UnitCompleted -> onNotice(
+                    when {
+                        event.pathComplete -> "${event.completedTitle} complete — path complete!"
+                        event.unlockedTitle != null ->
+                            "${event.completedTitle} complete — ${event.unlockedTitle} unlocked"
+                        else -> "${event.completedTitle} complete"
+                    }
+                )
             }
         }
     }
@@ -136,17 +146,35 @@ private fun LoadedBody(
 ) {
     Column(modifier = modifier) {
         val units = state.path.units
+        val completedCount = units.count { state.unitStates[it.id] == UnitGateState.DONE }
+        val listState = rememberLazyListState()
+
+        // By unit 10+ the current card sits below the fold; position the
+        // list on it so the user never scrolls to find their place. Keyed
+        // on the current unit id: runs on entry and again only when a
+        // completion moves the frontier — not on every silent refresh.
+        val currentUnitId = state.nextUnit?.id
+        LaunchedEffect(currentUnitId) {
+            val index = units.indexOfFirst { it.id == currentUnitId }
+            // +1 for the "Units" header item; scroll only when the target
+            // is beyond the first few rows, so early units don't jump.
+            if (index > 1) listState.animateScrollToItem(index + 1)
+        }
+
         // The path is the scrolling surface; only the Continue button is
         // pinned below. No intro description: the app store listing and the
         // app-bar title already establish what this is, and the stepper makes
         // the sequence self-evident — a re-pitch here is redundant on a screen
         // the user sees every session.
         LazyColumn(
+            state = listState,
             modifier = Modifier
                 .weight(1f, fill = true)
                 .fillMaxWidth()
         ) {
-            item(key = "units-header") { SectionHeader(title = "Units") }
+            item(key = "units-header") {
+                SectionHeader(title = "Units · $completedCount of ${units.size}")
+            }
 
             itemsIndexed(items = units, key = { _, unit -> unit.id }) { index, unit ->
                 val gate = state.unitStates[unit.id] ?: UnitGateState.AVAILABLE

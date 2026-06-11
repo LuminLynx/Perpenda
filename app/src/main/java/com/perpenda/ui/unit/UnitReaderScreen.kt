@@ -74,7 +74,8 @@ fun UnitReaderScreen(
     pathRepository: PathRepository,
     completionCache: CompletionCache,
     unitId: String,
-    onAuthExpired: () -> Unit
+    onAuthExpired: () -> Unit,
+    onOpenNextUnit: (String) -> Unit = {}
 ) {
     val viewModel: UnitReaderViewModel = viewModel(
         key = unitId,
@@ -122,6 +123,7 @@ fun UnitReaderScreen(
                 onToggleDepth = viewModel::toggleDepth,
                 onAnswerChanged = viewModel::onAnswerChanged,
                 onSubmitAnswer = viewModel::submitAnswer,
+                onOpenNextUnit = onOpenNextUnit,
                 modifier = Modifier.screenContentPadding(contentPadding)
             )
         }
@@ -136,6 +138,7 @@ private fun LoadedBody(
     onToggleDepth: () -> Unit,
     onAnswerChanged: (String) -> Unit,
     onSubmitAnswer: () -> Unit,
+    onOpenNextUnit: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val unit = state.unit
@@ -228,6 +231,19 @@ private fun LoadedBody(
                     flagged = result.flagged,
                     rubricCriteriaById = unit.rubric?.criteria.orEmpty().associateBy { it.id }
                 )
+                // Close the loop at the moment of success: the unit this
+                // completion unlocked is one tap away, no detour through
+                // path home. Resolved best-effort — absent, the pinned
+                // Continue button on home still covers it.
+                state.nextUnit?.let { next ->
+                    PrimaryActionButton(
+                        text = "Next · ${next.title}",
+                        onClick = { onOpenNextUnit(next.id) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp)
+                    )
+                }
             }
         }
 
