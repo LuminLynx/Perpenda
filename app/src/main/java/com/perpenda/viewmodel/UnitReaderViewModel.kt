@@ -158,7 +158,12 @@ class UnitReaderViewModel(
                         submitInProgress = false,
                         submitFailure = null,
                         gradeResult = result,
-                        isCompleted = true,
+                        // T2 amendment: a below-the-bar grade (more than one
+                        // criterion missed, or flagged) returns calibration
+                        // without completing — the unit stays in progress
+                        // and the learner revises. An already-completed
+                        // unit can't be un-completed by a worse re-submit.
+                        isCompleted = latest.isCompleted || result.completed,
                         // Resolved asynchronously below; null until then.
                         nextUnit = null
                     )
@@ -174,7 +179,7 @@ class UnitReaderViewModel(
             // Best-effort: resolve the unit this completion unlocked so the
             // grade results can offer "Next · {title}". A failure just means
             // no next-unit shortcut — the pinned button on path home remains.
-            if (outcome.isSuccess) {
+            if (outcome.isSuccess && outcome.getOrNull()?.completed == true) {
                 val resolved = runCatching {
                     val current = uiState as? UnitReaderUiState.Loaded ?: return@launch
                     val path = pathRepository.getPath(current.unit.pathId)

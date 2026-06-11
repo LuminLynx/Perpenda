@@ -462,12 +462,105 @@ def test_grade_endpoint_persists_completion_and_grades(
     )
     assert response.status_code == 200
     body = response.json()["data"]
+    # 1 missed of 2 is within the "miss at most one" completion bar.
+    assert body["completed"] is True
     assert body["completion"]["id"] == 42
     assert body["flagged"] is False
     assert {g["criterionId"] for g in body["grades"]} == {11, 12}
     assert {q["criterionId"] for q in body["answerQuotes"]} == {11, 12}
     assert captured["answer"] == "tokens not characters or words"
     assert captured["completion_id"] == 42
+
+
+def _three_criterion_unit(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        unit_repository,
+        "get_unit",
+        lambda unit_id, **_kwargs: {
+            "id": unit_id,
+            "title": "Tokenization",
+            "rubric": {
+                "criteria": [
+                    {"id": 11, "text": "c1"},
+                    {"id": 12, "text": "c2"},
+                    {"id": 13, "text": "c3"},
+                ]
+            },
+        },
+    )
+
+
+def _completion_must_not_be_recorded(monkeypatch: pytest.MonkeyPatch) -> None:
+    def _fail(*_args: Any, **_kwargs: Any) -> None:
+        raise AssertionError("completion must not be recorded below the bar")
+
+    monkeypatch.setattr(completion_repository, "record_completion", _fail)
+    monkeypatch.setattr(grade_repository, "upsert_grades", _fail)
+
+
+def test_grade_endpoint_withholds_completion_when_two_criteria_missed(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch, auth_header: dict[str, str]
+) -> None:
+    monkeypatch.setattr("app.main.get_user_by_id", lambda uid: {"id": uid})
+    _three_criterion_unit(monkeypatch)
+    monkeypatch.setattr(
+        "app.main.grade_decision_answer",
+        lambda *_a, **_k: GraderOutput(
+            grades=[
+                _grade(11),
+                _grade(12, met=False, answer_quote=""),
+                _grade(13, met=False, answer_quote=""),
+            ],
+            flagged=False,
+        ),
+    )
+    _completion_must_not_be_recorded(monkeypatch)
+    monkeypatch.setattr(
+        rate_limit_repository, "check_and_record_grade_attempt", lambda *a, **k: None
+    )
+
+    response = client.post(
+        "/api/v1/units/u-1/grade", json={"answer": "thin"}, headers=auth_header
+    )
+
+    assert response.status_code == 200
+    body = response.json()["data"]
+    assert body["completed"] is False
+    assert body["completion"] is None
+    # Calibration is never withheld: full grades + quotes still return.
+    assert {g["criterionId"] for g in body["grades"]} == {11, 12, 13}
+    assert [g["met"] for g in body["grades"]] == [True, False, False]
+    assert {q["criterionId"] for q in body["answerQuotes"]} == {11, 12, 13}
+
+
+def test_grade_endpoint_withholds_completion_when_flagged(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch, auth_header: dict[str, str]
+) -> None:
+    # All criteria met but flagged (ungrounded quotes / low confidence):
+    # the verdict isn't trustworthy enough to complete on.
+    monkeypatch.setattr("app.main.get_user_by_id", lambda uid: {"id": uid})
+    _three_criterion_unit(monkeypatch)
+    monkeypatch.setattr(
+        "app.main.grade_decision_answer",
+        lambda *_a, **_k: GraderOutput(
+            grades=[_grade(11), _grade(12), _grade(13)],
+            flagged=True,
+        ),
+    )
+    _completion_must_not_be_recorded(monkeypatch)
+    monkeypatch.setattr(
+        rate_limit_repository, "check_and_record_grade_attempt", lambda *a, **k: None
+    )
+
+    response = client.post(
+        "/api/v1/units/u-1/grade", json={"answer": "sus"}, headers=auth_header
+    )
+
+    assert response.status_code == 200
+    body = response.json()["data"]
+    assert body["completed"] is False
+    assert body["completion"] is None
+    assert body["flagged"] is True
 
 
 def test_grade_endpoint_returns_429_when_rate_limited(
