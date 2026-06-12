@@ -4,8 +4,7 @@ slug: evals
 path_id: llm-systems-for-pms
 position: 4
 prereq_unit_ids:
-  - tokenization-bundle-0
-  - context-window-bundle-0
+  - latency-bundle-0
 status: published
 definition: Evals are the discipline of knowing whether your LLM feature is working before users tell you it isn't — and the trap is treating "eval" as a single thing instead of a layered strategy across four different methods that catch different failure shapes.
 calibration_tags:

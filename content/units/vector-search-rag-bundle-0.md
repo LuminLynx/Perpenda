@@ -4,9 +4,6 @@ slug: vector-search-rag
 path_id: llm-systems-for-pms
 position: 10
 prereq_unit_ids:
-  - context-window-bundle-0
-  - tokenization-bundle-0
-  - evals-bundle-0
   - customization-trilemma-bundle-0
 status: published
 definition: Vector search and RAG quality decompose into three independent dimensions — recall (did retrieval find the right chunks?), groundedness (did the model anchor on them?), and citation faithfulness (does the cited source actually say what's claimed?) — and a RAG feature can fail on any one of them while the other two look fine.

@@ -4,9 +4,6 @@ slug: model-selection
 path_id: llm-systems-for-pms
 position: 5
 prereq_unit_ids:
-  - tokenization-bundle-0
-  - context-window-bundle-0
-  - latency-bundle-0
   - evals-bundle-0
 status: published
 definition: Model selection is the synthesis decision — picking which model class to ship a feature on by weighing capability tier against cost and latency, anchored to performance on the load-bearing task as measured by your eval discipline, not by the vendor spec sheet.

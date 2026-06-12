@@ -4,8 +4,6 @@ slug: safety
 path_id: llm-systems-for-pms
 position: 15
 prereq_unit_ids:
-  - hallucination-bundle-0
-  - tool-use-bundle-0
   - agents-bundle-0
 status: published
 definition: Safety and content moderation is the decision of how to bound a feature's abuse surface — what to moderate, how strict to set the threshold, and where the human sits — three coupled choices whose combination determines whether the feature is safe and usable or safe but useless.

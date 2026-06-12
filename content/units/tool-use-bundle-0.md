@@ -4,10 +4,7 @@ slug: tool-use
 path_id: llm-systems-for-pms
 position: 12
 prereq_unit_ids:
-  - tokenization-bundle-0
-  - evals-bundle-0
-  - prompt-design-bundle-0
-  - vector-search-rag-bundle-0
+  - streaming-ux-bundle-0
 status: published
 definition: Tool use is the decision of how to let a model call your systems — how granular the tools are, how strictly their inputs are validated, and where errors are recovered — three coupled choices whose combination determines whether the feature is reliable and debuggable or brittle and opaque.
 calibration_tags:

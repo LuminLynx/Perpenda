@@ -4,7 +4,7 @@ slug: latency
 path_id: llm-systems-for-pms
 position: 3
 prereq_unit_ids:
-  - tokenization-bundle-0
+  - context-window-bundle-0
 status: published
 definition: Latency is the time from "I asked" to "the answer feels useful" — and on most product surfaces what matters isn't total response time, it's time-to-first-meaningful-output.
 calibration_tags:

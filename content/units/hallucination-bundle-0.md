@@ -4,7 +4,7 @@ slug: hallucination
 path_id: llm-systems-for-pms
 position: 7
 prereq_unit_ids:
-  - evals-bundle-0
+  - prompt-design-bundle-0
 status: published
 definition: Hallucination is the LLM's structural tendency to generate plausible-sounding output that isn't grounded in the input or in reality — and reliability is the discipline of designing features to make hallucination visible, attributable, and bounded, not absent.
 calibration_tags:

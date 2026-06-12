@@ -4,9 +4,7 @@ slug: customization-trilemma
 path_id: llm-systems-for-pms
 position: 9
 prereq_unit_ids:
-  - evals-bundle-0
-  - model-selection-bundle-0
-  - prompt-design-bundle-0
+  - cost-dynamics-bundle-0
 status: published
 definition: The customization trilemma is the decision of which approach — fine-tuning, RAG, or prompting — to invest in when an LLM feature's baseline isn't good enough, picked by matching the approach's mechanism to the shape of the underlying quality problem rather than by approach familiarity or budget.
 calibration_tags:
