@@ -4,8 +4,7 @@ slug: cost-dynamics
 path_id: llm-systems-for-pms
 position: 8
 prereq_unit_ids:
-  - tokenization-bundle-0
-  - model-selection-bundle-0
+  - hallucination-bundle-0
 status: published
 definition: Cost dynamics at scale is the second cost conversation — the one that happens after the model is chosen and the feature is shipping at volume, when finance starts asking whether the projected annualized bill is sustainable.
 calibration_tags:

@@ -4,8 +4,7 @@ slug: streaming-ux
 path_id: llm-systems-for-pms
 position: 11
 prereq_unit_ids:
-  - tokenization-bundle-0
-  - latency-bundle-0
+  - vector-search-rag-bundle-0
 status: published
 definition: Streaming UX is the decision of how to deliver a model's output progressively — what to stream, how to render it, and how to recover from a mid-stream failure — three coupled choices whose combination determines whether a feature feels responsive, deliberate, or broken.
 calibration_tags:

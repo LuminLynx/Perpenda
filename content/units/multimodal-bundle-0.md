@@ -4,9 +4,7 @@ slug: multimodal
 path_id: llm-systems-for-pms
 position: 13
 prereq_unit_ids:
-  - tokenization-bundle-0
-  - evals-bundle-0
-  - cost-dynamics-bundle-0
+  - tool-use-bundle-0
 status: published
 definition: Multimodal vision is the decision of how to turn an image into a signal your system can act on — send the raw image to a vision model, extract structured signal first with classical CV, or a hybrid of both — chosen by the shape of the visual task rather than by reaching for the most capable model.
 calibration_tags:
