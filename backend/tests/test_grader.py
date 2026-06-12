@@ -490,6 +490,96 @@ def _three_criterion_unit(monkeypatch: pytest.MonkeyPatch) -> None:
     )
 
 
+def test_grade_endpoint_blocks_out_of_order_completion(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch, auth_header: dict[str, str]
+) -> None:
+    # Strict-order guarantee enforced server-side: grading a unit whose
+    # prerequisite isn't completed returns 409 PREREQ_NOT_MET, before any
+    # paid model call — a direct API client can't complete out of order.
+    monkeypatch.setattr("app.main.get_user_by_id", lambda uid: {"id": uid})
+    monkeypatch.setattr(
+        unit_repository,
+        "get_unit",
+        lambda unit_id, **_kwargs: {
+            "id": unit_id,
+            "title": "Context Window",
+            "prereqUnitIds": ["tokenization-bundle-0"],
+            "rubric": {"criteria": [{"id": 1, "text": "c1"}]},
+        },
+    )
+    monkeypatch.setattr(completion_repository, "list_completions", lambda _uid: [])
+
+    def _must_not_grade(*_a: Any, **_k: Any) -> None:
+        raise AssertionError("grader must not run when a prereq is unmet")
+
+    monkeypatch.setattr("app.main.grade_decision_answer", _must_not_grade)
+    monkeypatch.setattr(
+        rate_limit_repository, "check_and_record_grade_attempt", lambda *a, **k: None
+    )
+
+    response = client.post(
+        "/api/v1/units/u-2/grade", json={"answer": "anything"}, headers=auth_header
+    )
+    assert response.status_code == 409
+    error = response.json()["error"]
+    assert error["code"] == "PREREQ_NOT_MET"
+    assert error["missingPrereqUnitIds"] == ["tokenization-bundle-0"]
+
+
+def test_grade_endpoint_allows_completion_once_prereq_done(
+    client: TestClient, monkeypatch: pytest.MonkeyPatch, auth_header: dict[str, str]
+) -> None:
+    # Same unit, but the prereq is now completed → grading proceeds.
+    monkeypatch.setattr("app.main.get_user_by_id", lambda uid: {"id": uid})
+    monkeypatch.setattr(
+        unit_repository,
+        "get_unit",
+        lambda unit_id, **_kwargs: {
+            "id": unit_id,
+            "title": "Context Window",
+            "prereqUnitIds": ["tokenization-bundle-0"],
+            "rubric": {"criteria": [{"id": 1, "text": "c1"}]},
+        },
+    )
+    monkeypatch.setattr(
+        completion_repository,
+        "list_completions",
+        lambda _uid: [{"unitId": "tokenization-bundle-0"}],
+    )
+    monkeypatch.setattr(
+        "app.main.grade_decision_answer",
+        lambda *_a, **_k: GraderOutput(grades=[_grade(1)], flagged=False),
+    )
+    monkeypatch.setattr(
+        completion_repository,
+        "record_completion",
+        lambda user_id, unit_id: {
+            "completion": {
+                "id": 7,
+                "userId": user_id,
+                "pathId": "p",
+                "unitId": unit_id,
+                "completedAt": None,
+            },
+            "alreadyCompleted": False,
+        },
+    )
+    monkeypatch.setattr(
+        grade_repository,
+        "upsert_grades",
+        lambda **_k: [],
+    )
+    monkeypatch.setattr(
+        rate_limit_repository, "check_and_record_grade_attempt", lambda *a, **k: None
+    )
+
+    response = client.post(
+        "/api/v1/units/u-2/grade", json={"answer": "a solid answer"}, headers=auth_header
+    )
+    assert response.status_code == 200
+    assert response.json()["data"]["completed"] is True
+
+
 def _completion_must_not_be_recorded(monkeypatch: pytest.MonkeyPatch) -> None:
     def _fail(*_args: Any, **_kwargs: Any) -> None:
         raise AssertionError("completion must not be recorded below the bar")

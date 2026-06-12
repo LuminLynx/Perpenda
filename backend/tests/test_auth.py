@@ -263,3 +263,32 @@ def test_delete_user_removes_account_and_cascades(gated_db) -> None:
     assert grade_repository.list_grades_for_completion(completion["id"], user_id) == []
     # deleting an already-gone user is a no-op, returns False
     assert delete_user(user_id) is False
+
+
+def test_delete_user_clears_all_auth_attempt_namespaces(gated_db) -> None:
+    # Account deletion must remove rate-limit rows across EVERY namespace
+    # keyed on the email — not just login/signup — so no row survives the
+    # deletion and a re-signup can't inherit a tripped counter.
+    from app.repository import create_user, delete_user
+
+    email = "cleanup@example.com"
+    user = create_user(
+        email=email, password_hash="x", display_name="Cleanup User"
+    )
+    prefixes = ("login", "signup", "verify", "resend", "reset", "reset-confirm")
+    with gated_db() as conn:
+        for prefix in prefixes:
+            conn.execute(
+                "INSERT INTO auth_attempts (attempt_key) VALUES (%s)",
+                (f"{prefix}:{email}",),
+            )
+        conn.commit()
+
+    assert delete_user(user["id"]) is True
+
+    with gated_db() as conn:
+        remaining = conn.execute(
+            "SELECT COUNT(*) AS n FROM auth_attempts WHERE attempt_key LIKE %s",
+            (f"%:{email}",),
+        ).fetchone()["n"]
+    assert remaining == 0

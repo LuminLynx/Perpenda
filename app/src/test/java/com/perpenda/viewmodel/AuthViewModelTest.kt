@@ -5,6 +5,7 @@ import com.perpenda.data.repository.AuthRepository
 import com.perpenda.model.AuthSession
 import com.perpenda.model.SignupResult
 import com.perpenda.model.User
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -272,6 +273,50 @@ class AuthViewModelTest {
         )
     }
 
+    @Test
+    fun `setMode abandons a pending verification step`() = runTest(dispatcher) {
+        val repo = FakeAuthRepo(signupResult = SignupResult.VerificationRequired("ada@example.com"))
+        val viewModel = newSignupViewModel(repo)
+        viewModel.submit()
+        advanceUntilIdle()
+        assertEquals("ada@example.com", viewModel.uiState.pendingVerificationEmail)
+
+        viewModel.setMode(AuthMode.Login)
+
+        assertNull(viewModel.uiState.pendingVerificationEmail)
+        assertNull(viewModel.uiState.pendingResetEmail)
+        assertEquals("", viewModel.uiState.verificationCode)
+    }
+
+    @Test
+    fun `cancel during in-flight verify clears submitting and drops the result`() =
+        runTest(dispatcher) {
+            val gate = CompletableDeferred<Unit>()
+            val repo = FakeAuthRepo(
+                signupResult = SignupResult.VerificationRequired("ada@example.com"),
+                verifyGate = gate
+            )
+            val viewModel = newSignupViewModel(repo)
+            viewModel.submit()
+            advanceUntilIdle()
+
+            viewModel.onVerificationCodeChanged("123456")
+            viewModel.submitVerificationCode()
+            advanceUntilIdle()
+            assertTrue("verify should be in flight", viewModel.uiState.isSubmitting)
+
+            // User backs out while the verify call is still pending.
+            viewModel.cancelVerification()
+            assertFalse(viewModel.uiState.isSubmitting)
+            assertNull(viewModel.uiState.pendingVerificationEmail)
+
+            // The call now resolves — it must NOT navigate the user in.
+            gate.complete(Unit)
+            advanceUntilIdle()
+            assertFalse("a backed-out verify must not authenticate", viewModel.uiState.justAuthenticated)
+            assertFalse(viewModel.uiState.isSubmitting)
+        }
+
     private fun newSignupViewModel(repo: AuthRepository): AuthViewModel {
         val viewModel = AuthViewModel(repo)
         viewModel.setMode(AuthMode.Signup)
@@ -290,7 +335,9 @@ class AuthViewModelTest {
         private val signupResult: SignupResult? = null,
         private val verifyError: AuthApiException? = null,
         private val loginError: AuthApiException? = null,
-        private val resetError: AuthApiException? = null
+        private val resetError: AuthApiException? = null,
+        /** When set, verifyEmail suspends on it — lets a test cancel mid-flight. */
+        private val verifyGate: CompletableDeferred<Unit>? = null
     ) : AuthRepository {
         val verifyCalls = mutableListOf<Pair<String, String>>()
         val resendCalls = mutableListOf<String>()
@@ -307,6 +354,7 @@ class AuthViewModelTest {
 
         override suspend fun verifyEmail(email: String, code: String): AuthSession {
             verifyCalls += email to code
+            verifyGate?.await()
             verifyError?.let { throw it }
             return AuthSession(token = "jwt", user = User("u-1", email, "Ada"))
         }

@@ -299,9 +299,21 @@ def delete_user(user_id: str) -> bool:
     completions, grades (via completion), review_schedule, and grade_attempts
     cascade through their `ON DELETE CASCADE` foreign keys to users(id).
     auth_attempts is keyed by email (not user_id), so its rows for this
-    account are cleared explicitly — together this removes the account's
-    personal data, satisfying the data-deletion requirement.
+    account are cleared explicitly — every namespace, so no rate-limit
+    rows survive the deletion (and a re-signup can't inherit a tripped
+    counter). Together this removes the account's personal data, satisfying
+    the data-deletion requirement.
     """
+    # Every auth_attempts key namespace that keys on this email. Must stay
+    # in sync with the f"<prefix>:{email}" keys built in main.py.
+    AUTH_ATTEMPT_PREFIXES = (
+        "login",
+        "signup",
+        "verify",
+        "resend",
+        "reset",
+        "reset-confirm",
+    )
     with get_connection() as connection:
         row = connection.execute(
             "SELECT email FROM users WHERE id = %s", (user_id,)
@@ -312,8 +324,8 @@ def delete_user(user_id: str) -> bool:
         email = row["email"]
         connection.execute("DELETE FROM users WHERE id = %s", (user_id,))
         connection.execute(
-            "DELETE FROM auth_attempts WHERE attempt_key IN (%s, %s)",
-            (f"login:{email}", f"signup:{email}"),
+            "DELETE FROM auth_attempts WHERE attempt_key = ANY(%s)",
+            ([f"{prefix}:{email}" for prefix in AUTH_ATTEMPT_PREFIXES],),
         )
         connection.commit()
     return True

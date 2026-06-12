@@ -2,7 +2,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
-from fastapi import Depends, FastAPI, Query
+from fastapi import BackgroundTasks, Depends, FastAPI, Query
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
@@ -106,6 +106,32 @@ def _rate_limited_response(exc: RateLimitExceededError, *, message: str) -> JSON
     return response
 
 
+def _issue_and_send_verification(user_id: str, email: str) -> None:
+    """Issue a verification code and email it. Runs as a background task so
+    the originating request returns at constant time regardless of account
+    state — closing the timing/side-effect oracle that would otherwise
+    reveal which addresses have unverified accounts."""
+    try:
+        code = email_verification_repository.issue_code(user_id)
+        send_verification_email(email, code)
+    except EmailSendError as exc:
+        LOGGER.warning("verification email failed for %s: %s", user_id, exc)
+    except Exception:  # noqa: BLE001 — a background task must never crash the worker
+        LOGGER.exception("verification email task failed for %s", user_id)
+
+
+def _issue_and_send_password_reset(user_id: str, email: str) -> None:
+    """Issue a password-reset code and email it, as a background task (see
+    _issue_and_send_verification for the constant-time rationale)."""
+    try:
+        code = password_reset_repository.issue_code(user_id)
+        send_password_reset_email(email, code)
+    except EmailSendError as exc:
+        LOGGER.warning("password reset email failed for %s: %s", user_id, exc)
+    except Exception:  # noqa: BLE001
+        LOGGER.exception("password reset email task failed for %s", user_id)
+
+
 def _account_gone_response() -> JSONResponse:
     return _envelope_response(
         status_code=401,
@@ -174,7 +200,7 @@ def get_term_search_results(q: str = Query(default="", min_length=0)) -> JSONRes
 
 
 @app.post("/api/v1/auth/signup")
-def post_signup(request: SignupRequest) -> JSONResponse:
+def post_signup(request: SignupRequest, background_tasks: BackgroundTasks) -> JSONResponse:
     try:
         email = validate_email(request.email)
         password = validate_password(request.password)
@@ -223,14 +249,13 @@ def post_signup(request: SignupRequest) -> JSONResponse:
         )
 
     if EMAIL_VERIFICATION_REQUIRED:
-        # No token until the email is confirmed. A send failure is logged
-        # but still returns 201 — the account exists and the client's
-        # "resend code" path recovers; failing here would orphan it.
-        code = email_verification_repository.issue_code(user["id"])
-        try:
-            send_verification_email(user["email"], code)
-        except EmailSendError as exc:
-            LOGGER.warning("verification email failed for %s: %s", user["id"], exc)
+        # No token until the email is confirmed. The code+email run in a
+        # background task: a send failure can't orphan the account (the
+        # client's "resend code" path recovers), and the request returns
+        # without waiting on the email provider.
+        background_tasks.add_task(
+            _issue_and_send_verification, user["id"], user["email"]
+        )
         return _envelope_response(
             status_code=201,
             data={"verificationRequired": True, "user": user},
@@ -342,12 +367,17 @@ def post_verify_email(request: VerifyEmailRequest) -> JSONResponse:
 
 
 @app.post("/api/v1/auth/resend-verification")
-def post_resend_verification(request: ResendVerificationRequest) -> JSONResponse:
+def post_resend_verification(
+    request: ResendVerificationRequest, background_tasks: BackgroundTasks
+) -> JSONResponse:
     """Issue a fresh code for an unverified account.
 
     Always responds 200 {"sent": true} whether or not the email has an
     account (anti-enumeration); the rate limit bounds the email volume an
-    abuser can trigger toward one address.
+    abuser can trigger toward one address. The code+email work runs in a
+    background task so the response time is constant regardless of whether
+    the address matched an unverified account — otherwise the latency of
+    the inline issue+send would be a side-channel revealing exactly that.
     """
     resend_key = f"resend:{request.email.strip().lower()}"
     try:
@@ -357,22 +387,24 @@ def post_resend_verification(request: ResendVerificationRequest) -> JSONResponse
 
     user = get_user_by_email(request.email.strip())
     if user is not None and not user["emailVerified"]:
-        code = email_verification_repository.issue_code(user["id"])
-        try:
-            send_verification_email(user["email"], code)
-        except EmailSendError as exc:
-            LOGGER.warning("verification resend failed for %s: %s", user["id"], exc)
+        background_tasks.add_task(
+            _issue_and_send_verification, user["id"], user["email"]
+        )
     return _envelope_response(data={"sent": True})
 
 
 @app.post("/api/v1/auth/request-password-reset")
-def post_request_password_reset(request: RequestPasswordResetRequest) -> JSONResponse:
+def post_request_password_reset(
+    request: RequestPasswordResetRequest, background_tasks: BackgroundTasks
+) -> JSONResponse:
     """Email a reset code to an account's address.
 
     Always responds 200 {"sent": true} whether or not the email has an
     account (anti-enumeration), mirroring resend-verification; the rate
     limit bounds the email volume an abuser can trigger at one address.
     Unverified accounts may reset too — redeeming proves inbox ownership.
+    The code+email run in a background task so the response time doesn't
+    reveal whether the address matched an account.
     """
     reset_key = f"reset:{request.email.strip().lower()}"
     try:
@@ -382,11 +414,9 @@ def post_request_password_reset(request: RequestPasswordResetRequest) -> JSONRes
 
     user = get_user_by_email(request.email.strip())
     if user is not None:
-        code = password_reset_repository.issue_code(user["id"])
-        try:
-            send_password_reset_email(user["email"], code)
-        except EmailSendError as exc:
-            LOGGER.warning("password reset email failed for %s: %s", user["id"], exc)
+        background_tasks.add_task(
+            _issue_and_send_password_reset, user["id"], user["email"]
+        )
     return _envelope_response(data={"sent": True})
 
 
@@ -654,6 +684,29 @@ def post_grade(
                 "message": f"Unit '{unit_id}' has no rubric criteria; nothing to grade.",
             },
         )
+
+    # Strict-order guarantee: a unit can't be completed until its
+    # prerequisite chain is. The app gates this in the UI, but ordered
+    # progression is a product guarantee (STRATEGY core loop), so it's
+    # enforced server-side too — a direct API client can't complete units
+    # out of order. Checked before the paid model call so an out-of-order
+    # attempt costs nothing.
+    prereq_ids = unit.get("prereqUnitIds") or []
+    if prereq_ids:
+        completed_ids = {
+            c["unitId"] for c in completion_repository.list_completions(current_user_id)
+        }
+        missing = [p for p in prereq_ids if p not in completed_ids]
+        if missing:
+            return _envelope_response(
+                status_code=409,
+                data=None,
+                error={
+                    "code": "PREREQ_NOT_MET",
+                    "message": "Complete the prerequisite unit(s) before this one.",
+                    "missingPrereqUnitIds": missing,
+                },
+            )
 
     # Cost guard (OWASP LLM10): cap paid grade calls per user. Recorded
     # before the model call so abusive attempts count even if grading

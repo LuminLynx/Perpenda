@@ -45,7 +45,17 @@ class AuthViewModel(
         private set
 
     fun setMode(mode: AuthMode) {
-        uiState = uiState.copy(mode = mode, errorMessage = null)
+        // Switching login/signup must leave any in-progress verify/reset
+        // step behind — otherwise a lingering pendingVerificationEmail /
+        // pendingResetEmail snaps the screen back into the code step.
+        uiState = uiState.copy(
+            mode = mode,
+            errorMessage = null,
+            infoMessage = null,
+            pendingVerificationEmail = null,
+            pendingResetEmail = null,
+            verificationCode = ""
+        )
     }
 
     fun onEmailChanged(email: String) {
@@ -154,25 +164,31 @@ class AuthViewModel(
 
         uiState = uiState.copy(isSubmitting = true, errorMessage = null, infoMessage = null)
         viewModelScope.launch {
-            uiState = try {
-                val session = authRepository.verifyEmail(email, code)
-                uiState.copy(
-                    isSubmitting = false,
-                    signedInUser = session.user,
-                    justAuthenticated = true,
-                    errorMessage = null,
-                    pendingVerificationEmail = null,
-                    verificationCode = "",
-                    password = "",
-                    postAuthNotice = "Email confirmed — your account is ready."
-                )
-            } catch (error: AuthApiException) {
-                uiState.copy(isSubmitting = false, errorMessage = mapErrorMessage(error))
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Exception) {
-                uiState.copy(isSubmitting = false, errorMessage = "Network error. Please try again.")
-            }
+            val result = runCatching { authRepository.verifyEmail(email, code) }
+                .onFailure { if (it is CancellationException) throw it }
+            // If the user left the verification step while the call was in
+            // flight (back button → cancelVerification), drop the result —
+            // don't navigate them in or write an error onto the bare form.
+            if (uiState.pendingVerificationEmail != email) return@launch
+            uiState = result.fold(
+                onSuccess = { session ->
+                    uiState.copy(
+                        isSubmitting = false,
+                        signedInUser = session.user,
+                        justAuthenticated = true,
+                        errorMessage = null,
+                        pendingVerificationEmail = null,
+                        verificationCode = "",
+                        password = "",
+                        postAuthNotice = "Email confirmed — your account is ready."
+                    )
+                },
+                onFailure = { error ->
+                    val message = (error as? AuthApiException)?.let { mapErrorMessage(it) }
+                        ?: "Network error. Please try again."
+                    uiState.copy(isSubmitting = false, errorMessage = message)
+                }
+            )
         }
     }
 
@@ -184,10 +200,14 @@ class AuthViewModel(
 
     /** Leave the code step and return to the login/signup form. */
     fun cancelVerification() {
+        // Clear isSubmitting too: a back-tap during an in-flight verify/reset
+        // must not leave the form wedged in a submitting state. The in-flight
+        // coroutine bails on its own (it re-checks the pending email).
         uiState = uiState.copy(
             pendingVerificationEmail = null,
             pendingResetEmail = null,
             verificationCode = "",
+            isSubmitting = false,
             errorMessage = null,
             infoMessage = null
         )
@@ -242,25 +262,29 @@ class AuthViewModel(
 
         uiState = uiState.copy(isSubmitting = true, errorMessage = null, infoMessage = null)
         viewModelScope.launch {
-            uiState = try {
-                val session = authRepository.resetPassword(email, code, newPassword)
-                uiState.copy(
-                    isSubmitting = false,
-                    signedInUser = session.user,
-                    justAuthenticated = true,
-                    errorMessage = null,
-                    pendingResetEmail = null,
-                    verificationCode = "",
-                    password = "",
-                    postAuthNotice = "Password updated — you're signed in."
-                )
-            } catch (error: AuthApiException) {
-                uiState.copy(isSubmitting = false, errorMessage = mapErrorMessage(error))
-            } catch (error: CancellationException) {
-                throw error
-            } catch (error: Exception) {
-                uiState.copy(isSubmitting = false, errorMessage = "Network error. Please try again.")
-            }
+            val result = runCatching { authRepository.resetPassword(email, code, newPassword) }
+                .onFailure { if (it is CancellationException) throw it }
+            // Dropped if the user backed out of the reset step mid-flight.
+            if (uiState.pendingResetEmail != email) return@launch
+            uiState = result.fold(
+                onSuccess = { session ->
+                    uiState.copy(
+                        isSubmitting = false,
+                        signedInUser = session.user,
+                        justAuthenticated = true,
+                        errorMessage = null,
+                        pendingResetEmail = null,
+                        verificationCode = "",
+                        password = "",
+                        postAuthNotice = "Password updated — you're signed in."
+                    )
+                },
+                onFailure = { error ->
+                    val message = (error as? AuthApiException)?.let { mapErrorMessage(it) }
+                        ?: "Network error. Please try again."
+                    uiState.copy(isSubmitting = false, errorMessage = message)
+                }
+            )
         }
     }
 
