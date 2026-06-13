@@ -199,13 +199,17 @@ def validate_production_config() -> None:
             "AI_PROVIDER_API_KEY is empty; set it via the deploy environment."
         )
 
-    # When verification is required, a missing email-provider key would
-    # silently route codes to the logging sender — users could never
-    # verify. Fail the deploy instead.
-    if EMAIL_VERIFICATION_REQUIRED and not RESEND_API_KEY:
+    # Email is always reachable in production: password reset is live
+    # regardless of EMAIL_VERIFICATION_REQUIRED, so a missing provider key
+    # would silently route reset (and verification) codes to the logging
+    # sender — users could never recover an account. Require it
+    # unconditionally in production. (When verification is also on, this
+    # same gate covers the signup-code path.)
+    if not RESEND_API_KEY:
         problems.append(
-            "EMAIL_VERIFICATION_REQUIRED is on but RESEND_API_KEY is empty; "
-            "set it via the deploy environment."
+            "RESEND_API_KEY is empty; email (password reset, and "
+            "verification when enabled) can't be sent. Set it via the "
+            "deploy environment."
         )
 
     if problems:

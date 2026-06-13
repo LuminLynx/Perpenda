@@ -44,6 +44,7 @@ def test_passes_in_production_with_real_values(monkeypatch: pytest.MonkeyPatch) 
     monkeypatch.setattr(config, "JWT_SECRET", "an-actual-strong-secret-from-deploy-env")
     monkeypatch.setattr(config, "POSTGRES_PASSWORD", "real-prod-password")
     monkeypatch.setattr(config, "AI_PROVIDER_API_KEY", "sk-ant-real-key")
+    monkeypatch.setattr(config, "RESEND_API_KEY", "re_real-key")
     validate_production_config()
 
 
@@ -63,6 +64,7 @@ def test_passes_in_production_when_database_url_set_even_if_postgres_password_de
     monkeypatch.setattr(config, "JWT_SECRET", "real")
     monkeypatch.setattr(config, "POSTGRES_PASSWORD", "postgres")  # default
     monkeypatch.setattr(config, "AI_PROVIDER_API_KEY", "sk-ant-real")
+    monkeypatch.setattr(config, "RESEND_API_KEY", "re_real")
     validate_production_config()
 
 
@@ -104,18 +106,17 @@ def test_fails_in_production_when_ai_provider_api_key_is_empty(monkeypatch: pyte
         validate_production_config()
 
 
-def test_fails_in_production_when_verification_on_without_resend_key(
+def test_fails_in_production_when_resend_key_missing(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """With verification required and no provider key, codes would route
-    to the logging sender and users could never verify — refuse the deploy.
-    """
+    """RESEND_API_KEY is required in production unconditionally: password
+    reset is always live, so a missing key would route reset codes to the
+    logging sender and strand locked-out users."""
     monkeypatch.setattr(config, "APP_ENV", "production")
     monkeypatch.setattr(config, "DATABASE_URL", "postgresql://u:p@h:5432/d")
     monkeypatch.setattr(config, "JWT_SECRET", "real")
     monkeypatch.setattr(config, "POSTGRES_PASSWORD", "real")
     monkeypatch.setattr(config, "AI_PROVIDER_API_KEY", "sk-ant-real")
-    monkeypatch.setattr(config, "EMAIL_VERIFICATION_REQUIRED", True)
     monkeypatch.setattr(config, "RESEND_API_KEY", "")
 
     with pytest.raises(ProductionConfigError, match="RESEND_API_KEY"):
@@ -126,9 +127,11 @@ def test_fails_in_production_when_verification_on_without_resend_key(
     validate_production_config()
 
 
-def test_verification_off_does_not_require_resend_key(
+def test_resend_key_required_even_when_verification_off(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    # Password reset is reachable with verification off, so the key is
+    # still mandatory — the gate must not be conditioned on the flag.
     monkeypatch.setattr(config, "APP_ENV", "production")
     monkeypatch.setattr(config, "DATABASE_URL", "postgresql://u:p@h:5432/d")
     monkeypatch.setattr(config, "JWT_SECRET", "real")
@@ -136,7 +139,8 @@ def test_verification_off_does_not_require_resend_key(
     monkeypatch.setattr(config, "AI_PROVIDER_API_KEY", "sk-ant-real")
     monkeypatch.setattr(config, "EMAIL_VERIFICATION_REQUIRED", False)
     monkeypatch.setattr(config, "RESEND_API_KEY", "")
-    validate_production_config()  # should not raise
+    with pytest.raises(ProductionConfigError, match="RESEND_API_KEY"):
+        validate_production_config()
 
 
 def test_reports_all_problems_at_once(monkeypatch: pytest.MonkeyPatch) -> None:
