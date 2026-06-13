@@ -21,7 +21,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/LuminLynx/Perpenda/releases/download/V1.0/app-release.apk"><img src="https://img.shields.io/badge/Download%20APK-v1.0%20%C2%B7%207.1%20MB%20%C2%B7%20Android%208%2B-brightgreen?style=for-the-badge" alt="Download v1.0 APK"></a>
+  <a href="https://github.com/LuminLynx/Perpenda/releases/latest/download/app-release.apk"><img src="https://img.shields.io/badge/Download%20latest%20APK%20%C2%B7%20Android%208%2B-brightgreen?style=for-the-badge" alt="Download latest Perpenda APK"></a>
 </p>
 
 <p align="center">
@@ -37,8 +37,8 @@
 
 Sideload the signed APK directly. Google Play Protect verifies on install. The in-app banner surfaces when a new version is available.
 
-- **[Download v1.0 APK](https://github.com/LuminLynx/Perpenda/releases/download/V1.0/app-release.apk)** · 7.1 MB · Android 8.0 (API 26)+
-- **[SHA-256 fingerprint](https://github.com/LuminLynx/Perpenda/releases/download/V1.0/app-release.apk.sha256)** for verification
+- **[Download the latest APK](https://github.com/LuminLynx/Perpenda/releases/latest/download/app-release.apk)** · Android 8.0 (API 26)+
+- **[SHA-256 fingerprint](https://github.com/LuminLynx/Perpenda/releases/latest/download/app-release.apk.sha256)** for verification
 - Full install instructions: **[perpenda.com/#download](https://perpenda.com/#download)**
 
 ---
@@ -64,12 +64,13 @@ Perpenda is not a math-first ML course, a code-first engineering curriculum, a g
 
 ## Current release
 
-**v1.0 — sideload distribution.** The first public build shipped 1 June 2026 with fifteen of twenty units, the calibrated grader, and spaced review. The APK is hosted on [GitHub Releases](https://github.com/LuminLynx/Perpenda/releases) and linked from [perpenda.com/#download](https://perpenda.com/#download); the app surfaces an in-app banner when a new version is available.
+**v1.1.** Builds on the v1.0 sideload release (first shipped 1 June 2026) with account hardening and a stricter learning loop. The signed APK is hosted on [GitHub Releases](https://github.com/LuminLynx/Perpenda/releases) and linked from [perpenda.com/#download](https://perpenda.com/#download); the app surfaces an in-app banner when a new version is available.
 
-What v1.0 ships:
+What v1.1 ships:
 
-- Fifteen units across the LLM-systems curriculum (tokenization through safety + content moderation).
-- Per-criterion calibrated grading on every decision prompt — no holistic score.
+- Fifteen units across the LLM-systems curriculum (tokenization through safety + content moderation), in a strict prerequisite order enforced both in-app and server-side.
+- Per-criterion calibrated grading on every decision prompt — no holistic score. A unit completes only when at most one criterion is missed and the answer isn't flagged.
+- Required email verification at signup and in-app password reset, both via one-time codes.
 - Spaced review on completed units.
 - Cross-device progress sync once signed in.
 
@@ -77,7 +78,7 @@ Held back, planned for follow-up releases:
 
 - Units 16–20 — the operating-phase units (monitoring, vendor risk, A/B, fallbacks). Placeholders exist in the path; authored content lands as real-use signal decides which production topics matter most.
 - F6 Path Overview.
-- Google Play distribution. v1.0 is sideload-only by deliberate choice; Play submission is a separate future decision.
+- Google Play production distribution. The app is in Play closed testing; sideload via GitHub Releases remains the public channel until production access clears.
 
 Canonical status docs:
 
