@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Virginia Dignum at QSP 2026: responsible AI beyond the checkbox — Marginalia</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="A QSP Summit 2026 speaker primer for product managers: what Virginia Dignum's work on AI governance and the EU AI Act means for teams shipping AI. Com versão portuguesa." />
+<meta name="robots" content="index,follow" />
+<link rel="canonical" href="https://perpenda.com/blog/qsp-2026-virginia-dignum.html" />
+
+<meta property="og:title" content="Virginia Dignum at QSP 2026: responsible AI beyond the checkbox" />
+<meta property="og:description" content="AI governance, the EU AI Act, and what responsibility actually requires of a product team. EN · PT." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://perpenda.com/blog/qsp-2026-virginia-dignum.html" />
+<meta property="og:site_name" content="Perpenda" />
+<meta property="og:image" content="https://perpenda.com/brand/perpenda-og-1200x630.png" />
+
+<link rel="icon" type="image/svg+xml" href="../brand/perpenda-mark-ink.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="../brand/favicon-32.png" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Virginia Dignum at QSP 2026: responsible AI beyond the checkbox",
+  "url": "https://perpenda.com/blog/qsp-2026-virginia-dignum.html",
+  "datePublished": "2026-06-13",
+  "inLanguage": ["en", "pt-PT"],
+  "isPartOf": { "@id": "https://perpenda.com/blog/#blog" },
+  "author": { "@id": "https://perpenda.com/#organization" },
+  "publisher": { "@id": "https://perpenda.com/#organization" }
+}
+</script>
+
+<link rel="stylesheet" href="../styles/colors_and_type.css" />
+
+<style>
+  html { color-scheme: light dark; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper-0); color: var(--ink-1);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  a { color: var(--oxblood); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+  .col  { max-width: 680px; margin: 0 auto; padding: 0 24px; }
+
+  nav.top {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--paper-0);
+    border-bottom: 1px solid var(--hair-1);
+  }
+  nav.top .row { display: flex; align-items: center; gap: 16px; padding: 14px 0; }
+  .wordmark { display: flex; align-items: center; gap: 10px; }
+  .wordmark img { height: 28px; width: auto; display: block; }
+  nav .grow { flex: 1; }
+  nav a.link {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-2);
+  }
+  nav a.link:hover { color: var(--ink-1); text-decoration: none; }
+
+  /* ─── Article header ─────────────────────────────────────── */
+  .head { padding: 64px 0 40px; }
+  .head .eyebrow {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-3);
+    margin-bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .head .eyebrow .dot { width: 7px; height: 7px; background: var(--oxblood); border-radius: 50%; }
+  .head h1 {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 5vw, 52px); line-height: 1.1;
+    font-weight: 400; letter-spacing: -0.015em; margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  .head h1 em { font-style: italic; color: var(--oxblood); font-weight: 400; }
+  .head .meta {
+    font-family: var(--font-mono); font-size: 13px; color: var(--ink-3);
+    display: flex; gap: 18px; flex-wrap: wrap;
+  }
+
+  /* ─── Body ───────────────────────────────────────────────── */
+  article { padding-bottom: 48px; }
+  article p {
+    font-size: 17.5px; line-height: 1.62; color: var(--ink-1);
+    margin: 0 0 22px;
+  }
+  article h2 {
+    font-family: var(--font-display); font-size: 26px; line-height: 1.2;
+    font-weight: 500; margin: 44px 0 14px;
+  }
+  article .sidefact {
+    border-left: 2px solid var(--oxblood);
+    padding: 4px 0 4px 22px; margin: 30px 0;
+    font-family: var(--font-display);
+    font-size: clamp(19px, 2vw, 23px); line-height: 1.4; color: var(--ink-1);
+    max-width: 44ch;
+  }
+  article .sidefact em { font-style: italic; }
+  .reading-list {
+    border: 1px solid var(--hair-1); border-radius: 4px;
+    background: var(--paper-1);
+    padding: 22px 26px; margin: 36px 0;
+  }
+  .reading-list .label {
+    font-family: var(--font-ui); font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-3);
+    margin-bottom: 12px;
+  }
+  .reading-list ul { margin: 0; padding-left: 18px; }
+  .reading-list li { font-size: 15.5px; line-height: 1.6; color: var(--ink-1); margin-bottom: 6px; }
+
+  /* ─── Portuguese section ─────────────────────────────────── */
+  .pt {
+    border-top: 1px solid var(--hair-1);
+    padding: 48px 0 72px;
+  }
+  .pt .lang-eyebrow {
+    font-family: var(--font-ui); font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--sage);
+    background: var(--sage-tint);
+    display: inline-block; padding: 5px 12px; border-radius: 2px;
+    margin-bottom: 22px;
+  }
+  .pt h2 {
+    font-family: var(--font-display); font-size: 26px; font-weight: 500;
+    margin: 0 0 16px; line-height: 1.2;
+  }
+  .pt p { font-size: 17px; line-height: 1.62; margin: 0 0 20px; }
+
+  footer {
+    border-top: 1px solid var(--hair-1);
+    padding: 28px 0;
+    font-family: var(--font-ui); font-size: 12px; color: var(--ink-3);
+  }
+  footer a { color: var(--ink-3); }
+  footer a:hover { color: var(--ink-1); }
+  footer .grow { flex: 1; }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap row">
+    <a class="wordmark" href="../">
+      <picture>
+        <source srcset="../brand/perpenda-wordmark-dark.svg" media="(prefers-color-scheme: dark)" />
+        <img src="../brand/perpenda-wordmark.svg" alt="Perpenda" />
+      </picture>
+    </a>
+    <div class="grow"></div>
+    <a class="link" href="index.html">Marginalia</a>
+    <a class="link" href="../">App</a>
+  </div>
+</nav>
+
+<header class="head">
+  <div class="col">
+    <div class="eyebrow"><span class="dot"></span> QSP Summit 2026 · Speaker primer · 02</div>
+    <h1>Virginia Dignum: responsible AI <em>past the compliance checkbox.</em></h1>
+    <div class="meta">
+      <span>2026-06-13</span>
+      <span>EN · versão PT abaixo</span>
+      <span>~6 min</span>
+    </div>
+  </div>
+</header>
+
+<article>
+  <div class="col">
+    <p>
+      If Amy Edmondson is the QSP speaker who tells you how to run a
+      team, Virginia Dignum is the one who tells you what you're
+      accountable for when that team ships. She is among Europe's most
+      influential voices on AI governance — and, less advertised on the
+      international circuit, she is Portuguese: born and raised here,
+      a University of Lisbon graduate whose first job, in 1986, was
+      building an AI system to plan subsidised housing in Lisbon. A
+      Portuguese researcher returning to a Portuguese stage to talk
+      about the rules Europe is writing for AI is worth the room on
+      its own.
+    </p>
+
+    <h2>Who she is</h2>
+    <p>
+      Dignum is Professor of Responsible Artificial Intelligence at
+      Umeå University in Sweden, where she leads the AI Policy Lab. The
+      titles around that are a map of where AI rules actually get made:
+      she served on the EU High-Level Expert Group on AI that shaped
+      the bloc's early ethics guidelines, sits on UNESCO's expert group
+      on implementing its AI Ethics Recommendation, the OECD Expert
+      Group on AI Futures, and the United Nations Advisory Body on AI.
+      She is a Wallenberg Scholar, a member of the Royal Swedish
+      Academy of Engineering Sciences, and holds the Medal of Honour of
+      the City of Oeiras. Her book <em>Responsible Artificial
+      Intelligence</em> is a standard reference; her recent <em>The AI
+      Paradox</em> is the trade-facing argument.
+    </p>
+
+    <h2>The one idea to walk in with</h2>
+    <p>
+      Dignum's central claim is deceptively plain: AI is not something
+      that happens to us. Every system encodes a choice, and
+      responsibility belongs to the people who design, deploy, and
+      govern it — not to the model, and not to "the technology" as an
+      abstract force. The mystified narrative, where AI is either
+      salvation or an uncontrollable threat, is in her telling a way of
+      dodging that accountability. For a product manager this lands
+      uncomfortably close to home: "the model did it" is not an
+      available defence. You chose the model, the training data, the
+      threshold, the fallback, and the cases you decided not to test.
+    </p>
+
+    <div class="sidefact">
+      AI doesn't <em>happen</em> to us. Every system is a choice — and
+      the choice has an owner.
+    </div>
+
+    <p>
+      A second point of hers cuts against an instinct most teams share:
+      more data does not mean fairer AI. Data distributions encode
+      existing inequalities, so flooding a system with more of the same
+      entrenches them rather than washing them out. The fairness
+      question is a design question, not a volume question — which means
+      it lands on the product spec, not just the data pipeline.
+    </p>
+
+    <h2>Why this is operational, not philosophical</h2>
+    <p>
+      It would be easy to file Dignum under ethics-as-garnish. The EU
+      AI Act makes that filing expensive. The Act is now in force, with
+      obligations phasing in, and it regulates by risk tier: some uses
+      banned outright, "high-risk" systems carrying documentation,
+      transparency, human-oversight, and data-governance duties that
+      attach to the people deploying them. A PM scoping an AI feature in
+      Europe is making AI Act classification decisions whether or not
+      anyone has labelled them as such. Dignum's recent work asks a
+      sharp follow-up question — whether the EU's "Digital Omnibus"
+      simplification drive strengthens the Act or quietly dilutes it —
+      which is precisely the kind of moving regulatory ground a product
+      roadmap has to price in.
+    </p>
+    <p>
+      Her governance-enables-innovation line is the part worth taking
+      back to a sceptical engineering lead. Her argument is that every
+      mature industry runs on rules, and that clear constraints reduce
+      the uncertainty that actually stalls shipping. For European teams
+      told daily that regulation is why they're behind, that reframe —
+      rules as the precondition for trust, and trust as the precondition
+      for adoption — is more useful than another round of
+      catch-up anxiety.
+    </p>
+
+    <h2>What to listen for in Matosinhos</h2>
+    <p>
+      Three threads. First, how she draws the line between meaningful
+      human oversight and oversight theatre — a human "in the loop" who
+      rubber-stamps is a compliance artefact, not a safeguard, and she
+      is blunt about the difference. Second, anything concrete on the
+      Digital Omnibus: simplification or dilution is a live fight, and
+      her read signals where European obligations are actually heading.
+      Third — given the venue — whether she connects responsible-AI
+      capacity to European, and specifically Portuguese, competitiveness:
+      whether governance is a moat or a millstone for the companies in
+      that room.
+    </p>
+
+    <div class="reading-list">
+      <div class="label">Before the session — in reading order</div>
+      <ul>
+        <li><em>The AI Paradox</em> (2026) — the trade-facing argument against both AI-as-saviour and AI-as-doom; start here.</li>
+        <li><em>Responsible Artificial Intelligence</em> (2019) — the academic backbone; design and governance of accountable systems.</li>
+        <li>"Rethinking the Digital Omnibus' Impact on the EU AI Act" (2026) — her current question, if you want the regulatory edge fresh.</li>
+      </ul>
+    </div>
+
+    <p>
+      Perpenda's calibration tiers — settled, contested, unsettled —
+      exist because honest AI products have to say what they don't know.
+      Dignum makes the same argument one level up, about the
+      institutions deploying those products: responsibility starts with
+      naming the choice rather than hiding it inside the model. The
+      session worth pairing with Edmondson's.
+    </p>
+  </div>
+</article>
+
+<section class="pt">
+  <div class="col">
+    <span class="lang-eyebrow">Versão portuguesa — resumo</span>
+    <h2>Virginia Dignum na QSP 2026: IA responsável para além do checkbox</h2>
+    <p>
+      Entre os oradores da QSP, Virginia Dignum é a que fala de
+      responsabilidade — e é portuguesa. Nascida e criada em Portugal,
+      licenciada pela Universidade de Lisboa, teve como primeiro
+      trabalho, em 1986, construir um sistema de IA para planear
+      habitação social em Lisboa. Hoje é Professora de Inteligência
+      Artificial Responsável na Universidade de Umeå, na Suécia, onde
+      dirige o AI Policy Lab, e integra os grupos de peritos da UE, da
+      UNESCO, da OCDE e das Nações Unidas sobre governação de IA.
+    </p>
+    <p>
+      A sua tese central é simples e desconfortável: a IA não nos
+      <em>acontece</em>. Cada sistema encerra uma escolha, e a
+      responsabilidade pertence a quem o concebe, implementa e governa —
+      não ao modelo. Para um product manager, isto fecha a porta à
+      desculpa fácil: "foi o modelo" não existe. A escolha do modelo,
+      dos dados, do limiar, do plano B e dos casos que se decidiu não
+      testar tem um dono. Acrescenta um segundo ponto contra-intuitivo:
+      mais dados não significam IA mais justa — a distribuição dos dados
+      reflete desigualdades existentes, e mais do mesmo entrincheira-as.
+    </p>
+    <p>
+      Nada disto é filosofia decorativa. O Regulamento Europeu de IA (AI
+      Act) está em vigor e regula por níveis de risco; quem define o
+      âmbito de uma funcionalidade de IA na Europa está a tomar decisões
+      de classificação, com ou sem essa etiqueta. O trabalho recente de
+      Dignum pergunta se o "Digital Omnibus" da UE reforça ou dilui o AI
+      Act — terreno regulatório em movimento que qualquer roadmap tem de
+      antecipar. A ouvir em Matosinhos: onde traça a linha entre
+      supervisão humana real e teatro de conformidade, e se liga a
+      capacidade de IA responsável à competitividade europeia — e
+      portuguesa. A sessão a emparelhar com a de Edmondson.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display: flex; align-items: center; gap: 24px;">
+    <a href="index.html">← Marginalia</a>
+    <div class="grow"></div>
+    <a href="../">perpenda.com</a>
+    <span>·</span>
+    <a href="https://github.com/LuminLynx/Perpenda">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>
