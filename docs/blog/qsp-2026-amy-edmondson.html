@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Amy Edmondson at QSP 2026: a primer for product managers — Marginalia</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Why the researcher behind psychological safety and intelligent failure is the most operationally useful speaker on the QSP Summit 2026 lineup for anyone shipping AI products. Com resumo em português." />
+<meta name="robots" content="index,follow" />
+<link rel="canonical" href="https://perpenda.com/blog/qsp-2026-amy-edmondson.html" />
+
+<meta property="og:title" content="Amy Edmondson at QSP 2026: a primer for product managers" />
+<meta property="og:description" content="Psychological safety, intelligent failure, and why both are operational requirements for teams shipping LLM products. EN · PT." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://perpenda.com/blog/qsp-2026-amy-edmondson.html" />
+<meta property="og:site_name" content="Perpenda" />
+<meta property="og:image" content="https://perpenda.com/brand/perpenda-og-1200x630.png" />
+
+<link rel="icon" type="image/svg+xml" href="../brand/perpenda-mark-ink.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="../brand/favicon-32.png" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "Amy Edmondson at QSP 2026: a primer for product managers",
+  "url": "https://perpenda.com/blog/qsp-2026-amy-edmondson.html",
+  "datePublished": "2026-06-13",
+  "inLanguage": ["en", "pt-PT"],
+  "isPartOf": { "@id": "https://perpenda.com/blog/#blog" },
+  "author": { "@id": "https://perpenda.com/#organization" },
+  "publisher": { "@id": "https://perpenda.com/#organization" }
+}
+</script>
+
+<link rel="stylesheet" href="../styles/colors_and_type.css" />
+
+<style>
+  html { color-scheme: light dark; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper-0); color: var(--ink-1);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  a { color: var(--oxblood); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+  .col  { max-width: 680px; margin: 0 auto; padding: 0 24px; }
+
+  nav.top {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--paper-0);
+    border-bottom: 1px solid var(--hair-1);
+  }
+  nav.top .row { display: flex; align-items: center; gap: 16px; padding: 14px 0; }
+  .wordmark { display: flex; align-items: center; gap: 10px; }
+  .wordmark img { height: 28px; width: auto; display: block; }
+  nav .grow { flex: 1; }
+  nav a.link {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-2);
+  }
+  nav a.link:hover { color: var(--ink-1); text-decoration: none; }
+
+  /* ─── Article header ─────────────────────────────────────── */
+  .head { padding: 64px 0 40px; }
+  .head .eyebrow {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-3);
+    margin-bottom: 20px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .head .eyebrow .dot { width: 7px; height: 7px; background: var(--oxblood); border-radius: 50%; }
+  .head h1 {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 5vw, 52px); line-height: 1.1;
+    font-weight: 400; letter-spacing: -0.015em; margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  .head h1 em { font-style: italic; color: var(--oxblood); font-weight: 400; }
+  .head .meta {
+    font-family: var(--font-mono); font-size: 13px; color: var(--ink-3);
+    display: flex; gap: 18px; flex-wrap: wrap;
+  }
+
+  /* ─── Body ───────────────────────────────────────────────── */
+  article { padding-bottom: 48px; }
+  article p {
+    font-size: 17.5px; line-height: 1.62; color: var(--ink-1);
+    margin: 0 0 22px;
+  }
+  article h2 {
+    font-family: var(--font-display); font-size: 26px; line-height: 1.2;
+    font-weight: 500; margin: 44px 0 14px;
+  }
+  article .sidefact {
+    border-left: 2px solid var(--oxblood);
+    padding: 4px 0 4px 22px; margin: 30px 0;
+    font-family: var(--font-display);
+    font-size: clamp(19px, 2vw, 23px); line-height: 1.4; color: var(--ink-1);
+    max-width: 44ch;
+  }
+  article .sidefact em { font-style: italic; }
+  .reading-list {
+    border: 1px solid var(--hair-1); border-radius: 4px;
+    background: var(--paper-1);
+    padding: 22px 26px; margin: 36px 0;
+  }
+  .reading-list .label {
+    font-family: var(--font-ui); font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-3);
+    margin-bottom: 12px;
+  }
+  .reading-list ul { margin: 0; padding-left: 18px; }
+  .reading-list li { font-size: 15.5px; line-height: 1.6; color: var(--ink-1); margin-bottom: 6px; }
+
+  /* ─── Portuguese section ─────────────────────────────────── */
+  .pt {
+    border-top: 1px solid var(--hair-1);
+    padding: 48px 0 72px;
+  }
+  .pt .lang-eyebrow {
+    font-family: var(--font-ui); font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.16em;
+    color: var(--sage);
+    background: var(--sage-tint);
+    display: inline-block; padding: 5px 12px; border-radius: 2px;
+    margin-bottom: 22px;
+  }
+  .pt h2 {
+    font-family: var(--font-display); font-size: 26px; font-weight: 500;
+    margin: 0 0 16px; line-height: 1.2;
+  }
+  .pt p { font-size: 17px; line-height: 1.62; margin: 0 0 20px; }
+
+  footer {
+    border-top: 1px solid var(--hair-1);
+    padding: 28px 0;
+    font-family: var(--font-ui); font-size: 12px; color: var(--ink-3);
+  }
+  footer a { color: var(--ink-3); }
+  footer a:hover { color: var(--ink-1); }
+  footer .grow { flex: 1; }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="wrap row">
+    <a class="wordmark" href="../">
+      <picture>
+        <source srcset="../brand/perpenda-wordmark-dark.svg" media="(prefers-color-scheme: dark)" />
+        <img src="../brand/perpenda-wordmark.svg" alt="Perpenda" />
+      </picture>
+    </a>
+    <div class="grow"></div>
+    <a class="link" href="index.html">Marginalia</a>
+    <a class="link" href="../">App</a>
+  </div>
+</nav>
+
+<header class="head">
+  <div class="col">
+    <div class="eyebrow"><span class="dot"></span> QSP Summit 2026 · Speaker primer · 01</div>
+    <h1>Amy Edmondson: the failure researcher your <em>AI roadmap needs.</em></h1>
+    <div class="meta">
+      <span>2026-06-13</span>
+      <span>EN · resumo em PT abaixo</span>
+      <span>~5 min</span>
+    </div>
+  </div>
+</header>
+
+<article>
+  <div class="col">
+    <p>
+      The QSP Summit lineup this year leans heavily on macro narrative —
+      AI and the future economy, Europe's position, the usual keynote
+      altitude. Amy Edmondson is the exception: the one speaker whose
+      research translates directly into how a product team should run
+      on Tuesday morning. If you ship software for a living, hers is
+      the session to plan around.
+    </p>
+
+    <h2>Who she is</h2>
+    <p>
+      Edmondson is the Novartis Professor of Leadership and Management
+      at Harvard Business School and has twice been ranked the world's
+      most influential management thinker by Thinkers50. She is best
+      known for the concept that made her famous and is now routinely
+      flattened into a buzzword: psychological safety — the shared
+      belief that a team is safe for interpersonal risk-taking, that
+      you can flag a problem, admit a mistake, or ask a naive question
+      without it being held against you.
+    </p>
+    <p>
+      The origin story is worth knowing because it inverts the
+      intuition. In her 1990s research on hospital teams, the
+      better-led teams appeared to make <em>more</em> medication errors.
+      The data wasn't measuring errors — it was measuring the
+      willingness to report them. The best teams didn't fail less;
+      they surfaced failure faster. That single inversion is the
+      foundation of everything she has published since, including
+      <em>The Fearless Organization</em> (2018) and <em>Right Kind of
+      Wrong: The Science of Failing Well</em> (2023), which won the
+      Financial Times Business Book of the Year.
+    </p>
+
+    <div class="sidefact">
+      The best teams didn't fail less. They <em>surfaced failure
+      faster.</em>
+    </div>
+
+    <h2>Why this matters more in the LLM era, not less</h2>
+    <p>
+      Deterministic software fails loudly: the build breaks, the test
+      goes red. LLM products fail quietly and probabilistically — a
+      grader drifts, a model handles a customer segment worse than
+      another, a prompt change degrades an edge case nobody is
+      watching. The only reliable detection mechanism for this class
+      of failure is people choosing to say "this output looks wrong
+      to me," early and often, against social pressure not to.
+      Edmondson's hospital finding maps onto AI products with almost
+      no translation required: a team whose error dashboards look
+      clean may simply be a team that has stopped reporting.
+    </p>
+    <p>
+      Her more recent taxonomy of failure is just as operational. In
+      <em>Right Kind of Wrong</em> she separates basic failures
+      (preventable, in known territory), complex failures (system
+      breakdowns from compounding factors), and intelligent failures —
+      undesired results from a genuine experiment in new territory,
+      run small, where the outcome could not have been known in
+      advance. Shipping LLM features is intelligent-failure territory
+      by definition: nobody, including the model vendor, can fully
+      predict behavior before contact with real users. The
+      discipline she prescribes — hypothesize, size the bet small,
+      instrument it, harvest the lesson — is uncomfortably close to a
+      job description for an AI product manager.
+    </p>
+
+    <h2>What to listen for in Matosinhos</h2>
+    <p>
+      Three things worth carrying into her session. First, how she
+      distinguishes psychological safety from comfort — her standard
+      correction is that safety enables candor and high standards
+      together, not lowered ones; expect her to push against the
+      soft-HR reading of her own work. Second, how the failure
+      taxonomy holds up when the experimenting agent is partly a
+      machine: who owns an intelligent failure when the hypothesis
+      was generated by a model? Third, anything she says about
+      learning velocity as a competitive variable — for European
+      companies told daily that they are behind on AI, "fail well,
+      faster" is a more actionable strategy than most of what the
+      macro keynotes will offer.
+    </p>
+
+    <div class="reading-list">
+      <div class="label">Before the session — in reading order</div>
+      <ul>
+        <li><em>Right Kind of Wrong: The Science of Failing Well</em> (2023) — the current thesis; read this one if you read only one.</li>
+        <li><em>The Fearless Organization</em> (2018) — the psychological safety playbook, post-buzzword.</li>
+        <li>"Psychological Safety and Learning Behavior in Work Teams" (1999) — the original study, freely findable, surprisingly readable.</li>
+      </ul>
+    </div>
+
+    <p>
+      Perpenda exists on a related premise: that judgment about AI
+      systems is trainable, and that honest calibration — knowing
+      which claims are settled, contested, or unsettled — beats
+      confident fluency. Edmondson has spent thirty years making the
+      organizational version of that argument. Worth the seat.
+    </p>
+  </div>
+</article>
+
+<section class="pt">
+  <div class="col">
+    <span class="lang-eyebrow">Versão portuguesa — resumo</span>
+    <h2>Amy Edmondson na QSP 2026: porque interessa a quem constrói produto</h2>
+    <p>
+      Entre os oradores da QSP Summit deste ano, Amy Edmondson —
+      professora na Harvard Business School e duas vezes considerada
+      a pensadora de gestão mais influente do mundo pelo Thinkers50 —
+      é a que mais diretamente fala a quem constrói software. É a
+      investigadora por detrás do conceito de segurança psicológica:
+      a convicção partilhada de que se pode apontar um problema,
+      admitir um erro ou fazer uma pergunta ingénua sem represálias.
+    </p>
+    <p>
+      A descoberta original inverte a intuição: nos estudos dela em
+      equipas hospitalares, as melhores equipas aparentavam cometer
+      <em>mais</em> erros de medicação — porque os reportavam mais.
+      As melhores equipas não falham menos; expõem as falhas mais
+      depressa. Para produtos com LLMs, que falham de forma
+      silenciosa e probabilística, esta lição aplica-se quase sem
+      tradução: um dashboard de erros limpo pode significar apenas
+      uma equipa que deixou de reportar.
+    </p>
+    <p>
+      No livro mais recente, <em>Right Kind of Wrong</em> (2023,
+      prémio Financial Times Business Book of the Year), Edmondson
+      distingue falhas básicas, complexas e inteligentes — estas
+      últimas, resultados indesejados de experiências genuínas em
+      território novo, feitas em pequena escala. Lançar
+      funcionalidades com LLMs é, por definição, território de falha
+      inteligente. A disciplina que ela prescreve — hipótese, aposta
+      pequena, instrumentação, lição — é quase a descrição de funções
+      de um PM de produtos de IA. Das sessões de Matosinhos, esta é a
+      que vale planear.
+    </p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap" style="display: flex; align-items: center; gap: 24px;">
+    <a href="index.html">← Marginalia</a>
+    <div class="grow"></div>
+    <a href="../">perpenda.com</a>
+    <span>·</span>
+    <a href="https://github.com/LuminLynx/Perpenda">GitHub</a>
+  </div>
+</footer>
+
+</body>
+</html>

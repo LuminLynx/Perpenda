@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Marginalia — notes from Perpenda</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="Notes from the margins of Perpenda — LLM systems, product judgment, and coverage of what's worth a PM's attention. In English and Portuguese." />
+<meta name="robots" content="index,follow" />
+<link rel="canonical" href="https://perpenda.com/blog/" />
+
+<meta property="og:title" content="Marginalia — notes from Perpenda" />
+<meta property="og:description" content="LLM systems, product judgment, and coverage worth a PM's attention. EN · PT." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://perpenda.com/blog/" />
+<meta property="og:site_name" content="Perpenda" />
+<meta property="og:image" content="https://perpenda.com/brand/perpenda-og-1200x630.png" />
+
+<link rel="icon" type="image/svg+xml" href="../brand/perpenda-mark-ink.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="../brand/favicon-32.png" />
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Blog",
+  "@id": "https://perpenda.com/blog/#blog",
+  "url": "https://perpenda.com/blog/",
+  "name": "Marginalia",
+  "description": "Notes from the margins of Perpenda — LLM systems, product judgment, and coverage worth a PM's attention.",
+  "inLanguage": ["en", "pt-PT"],
+  "publisher": { "@id": "https://perpenda.com/#organization" }
+}
+</script>
+
+<link rel="stylesheet" href="../styles/colors_and_type.css" />
+
+<style>
+  html { color-scheme: light dark; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper-0); color: var(--ink-1);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  a { color: var(--oxblood); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+  /* ─── Top nav (mirrors the landing page) ─────────────────── */
+  nav.top {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--paper-0);
+    border-bottom: 1px solid var(--hair-1);
+  }
+  nav.top .row { display: flex; align-items: center; gap: 16px; padding: 14px 0; }
+  .wordmark { display: flex; align-items: center; gap: 10px; }
+  .wordmark img { height: 28px; width: auto; display: block; }
+  nav .grow { flex: 1; }
+  nav a.link {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-2);
+  }
+  nav a.link:hover { color: var(--ink-1); text-decoration: none; }
+
+  /* ─── Masthead ───────────────────────────────────────────── */
+  .masthead { padding: 72px 0 56px; }
+  .masthead .eyebrow {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-3);
+    margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+  }
+  .masthead .eyebrow .dot { width: 7px; height: 7px; background: var(--oxblood); border-radius: 50%; }
+  .masthead h1 {
+    font-family: var(--font-display);
+    font-size: clamp(38px, 6vw, 64px); line-height: 1.05;
+    font-weight: 400; letter-spacing: -0.018em; margin: 0 0 18px;
+  }
+  .masthead h1 em { font-style: italic; color: var(--oxblood); font-weight: 400; }
+  .masthead .lede {
+    font-size: clamp(17px, 1.5vw, 20px); line-height: 1.55;
+    color: var(--ink-2); margin: 0; max-width: 56ch;
+  }
+
+  /* ─── Post list — hairline ledger, same grammar as the path ─ */
+  .ledger { padding-bottom: 96px; }
+  .post {
+    display: grid;
+    grid-template-columns: 110px 1fr auto;
+    align-items: baseline; gap: 20px;
+    padding: 22px 0; border-top: 1px solid var(--hair-1);
+  }
+  .post:last-child { border-bottom: 1px solid var(--hair-1); }
+  .post .date { font-family: var(--font-mono); font-size: 13px; color: var(--ink-3); white-space: nowrap; }
+  .post .body h2 {
+    font-family: var(--font-display); font-size: 24px; line-height: 1.25;
+    font-weight: 500; margin: 0 0 6px;
+  }
+  .post .body h2 a { color: var(--ink-1); }
+  .post .body h2 a:hover { color: var(--oxblood); text-decoration: none; }
+  .post .body p {
+    font-size: 15.5px; line-height: 1.55; color: var(--ink-2); margin: 0; max-width: 58ch;
+  }
+  .post .tags { display: flex; gap: 8px; align-self: center; }
+  .chip {
+    font-family: var(--font-ui); font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    padding: 4px 10px; border-radius: 2px; white-space: nowrap;
+  }
+  .chip-live      { background: var(--oxblood-tint); color: var(--oxblood); }
+  .chip-scheduled { background: var(--mineral-tint); color: var(--mineral); }
+  .chip-lang      { background: var(--sage-tint); color: var(--sage); }
+
+  .post.scheduled .body h2 { color: var(--ink-3); }
+  .post.scheduled .body p  { color: var(--ink-3); }
+
+  .ledger-note {
+    font-family: var(--font-ui); font-size: 12px; color: var(--ink-3);
+    margin-top: 20px; letter-spacing: 0.02em;
+  }
+
+  /* ─── Footer ─────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--hair-1);
+    padding: 28px 0;
+    font-family: var(--font-ui); font-size: 12px; color: var(--ink-3);
+  }
+  footer a { color: var(--ink-3); }
+  footer a:hover { color: var(--ink-1); }
+  footer .grow { flex: 1; }
+
+  @media (max-width: 640px) {
+    .post { grid-template-columns: 1fr; gap: 8px; }
+    .post .tags { align-self: start; }
+  }
+</style>
+</head>
+<body id="top">
+
+<nav class="top">
+  <div class="wrap row">
+    <a class="wordmark" href="../">
+      <picture>
+        <source srcset="../brand/perpenda-wordmark-dark.svg" media="(prefers-color-scheme: dark)" />
+        <img src="../brand/perpenda-wordmark.svg" alt="Perpenda" />
+      </picture>
+    </a>
+    <div class="grow"></div>
+    <a class="link" href="../">App</a>
+    <a class="link" href="https://github.com/LuminLynx/Perpenda">GitHub</a>
+  </div>
+</nav>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span> Notes · EN / PT</div>
+    <h1>Margin<em>alia</em></h1>
+    <p class="lede">
+      Notes written in the margins of building Perpenda — LLM systems,
+      product judgment, and coverage of what's worth a PM's attention.
+      In English, and in Portuguese when it serves Portuguese readers.
+    </p>
+  </div>
+</header>
+
+<main class="ledger">
+  <div class="wrap">
+
+    <article class="post">
+      <div class="date">2026-06-13</div>
+      <div class="body">
+        <h2><a href="qsp-2026-amy-edmondson.html">Amy Edmondson at QSP 2026: a primer for product managers</a></h2>
+        <p>
+          Why the researcher behind psychological safety and intelligent
+          failure is the most operationally useful speaker on the Porto
+          lineup for anyone shipping AI products. With a Portuguese summary.
+        </p>
+      </div>
+      <div class="tags">
+        <span class="chip chip-lang">EN · PT</span>
+        <span class="chip chip-live">Published</span>
+      </div>
+    </article>
+
+    <article class="post scheduled">
+      <div class="date">Pre-event</div>
+      <div class="body">
+        <h2>Virginia Dignum: responsible AI beyond the compliance checkbox</h2>
+        <p>QSP 2026 speaker primer — what her work on AI governance means for product teams under the EU AI Act.</p>
+      </div>
+      <div class="tags">
+        <span class="chip chip-lang">EN · PT</span>
+        <span class="chip chip-scheduled">Scheduled</span>
+      </div>
+    </article>
+
+    <article class="post scheduled">
+      <div class="date">Jun 30–Jul 2</div>
+      <div class="body">
+        <h2>QSP Summit 2026 — session notes, daily</h2>
+        <p>Same-day recaps from Matosinhos in PT and EN, focused on the AI and decision-making track.</p>
+      </div>
+      <div class="tags">
+        <span class="chip chip-lang">EN · PT</span>
+        <span class="chip chip-scheduled">Scheduled</span>
+      </div>
+    </article>
+
+    <article class="post scheduled">
+      <div class="date">Post-event</div>
+      <div class="body">
+        <h2>What the QSP 2026 agenda says about Europe's AI position</h2>
+        <p>A longform synthesis: macro framing, management orthodoxy, and where working PMs actually fit in it.</p>
+      </div>
+      <div class="tags">
+        <span class="chip chip-lang">EN · PT</span>
+        <span class="chip chip-scheduled">Scheduled</span>
+      </div>
+    </article>
+
+    <p class="ledger-note">Scheduled entries publish on the dates above. No newsletter, no pop-up — check back, or watch the repo.</p>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap" style="display: flex; align-items: center; gap: 24px;">
+    <a href="../">perpenda.com</a>
+    <div class="grow"></div>
+    <a href="https://github.com/LuminLynx/Perpenda">GitHub</a>
+    <span>·</span>
+    <span>GPL-3.0</span>
+  </div>
+</footer>
+
+</body>
+</html>
