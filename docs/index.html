@@ -40,6 +40,7 @@
       "@id": "https://perpenda.com/#organization",
       "name": "Perpenda",
       "url": "https://perpenda.com/",
+      "description": "Perpenda builds decision-grade AI-literacy training for product managers.",
       "logo": {
         "@type": "ImageObject",
         "url": "https://perpenda.com/brand/perpenda-icon-512.png",
@@ -47,6 +48,20 @@
         "height": 512
       },
       "email": "hello@perpenda.com",
+      "foundingLocation": {
+        "@type": "Place",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Lisbon",
+          "addressCountry": "PT"
+        }
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer support",
+        "email": "hello@perpenda.com",
+        "availableLanguage": ["en", "pt"]
+      },
       "sameAs": [
         "https://github.com/LuminLynx/Perpenda"
       ]
@@ -74,7 +89,7 @@
         "priceCurrency": "USD"
       },
       "publisher": { "@id": "https://perpenda.com/#organization" },
-      "softwareVersion": "1.0",
+      "softwareVersion": "1.1",
       "inLanguage": "en"
     }
   ]
@@ -384,9 +399,12 @@
     padding: 32px 0;
     font-family: var(--font-ui); font-size: 12px;
     color: var(--ink-3);
-    display: flex; align-items: center; gap: 24px;
+    display: flex; flex-direction: column; gap: 14px;
   }
+  footer .footer-row { display: flex; align-items: center; gap: 24px; width: 100%; }
   footer .grow { flex: 1; }
+  footer .footer-identity { color: var(--ink-3); }
+  footer .footer-identity a { color: inherit; }
 
   /* ─── Responsive ─────────────────────────────────────── */
   @media (max-width: 880px) {
@@ -626,7 +644,7 @@
 
 <!-- ─── Footer ─────────────────────────────────────────── -->
 <footer>
-  <div class="wrap" style="display: flex; align-items: center; gap: 24px; width: 100%;">
+  <div class="wrap footer-row">
     <a class="wordmark" href="#top">
       <picture>
         <source srcset="brand/perpenda-wordmark-dark.svg" media="(prefers-color-scheme: dark)" />
@@ -634,6 +652,8 @@
       </picture>
     </a>
     <div class="grow"></div>
+    <a href="mailto:hello@perpenda.com">Contact</a>
+    <span>·</span>
     <a href="legal/privacy-policy.html">Privacy</a>
     <span>·</span>
     <a href="legal/account-deletion.html">Delete account</a>
@@ -641,6 +661,10 @@
     <a href="https://github.com/LuminLynx/Perpenda">GitHub</a>
     <span>·</span>
     <span>GPL-3.0</span>
+  </div>
+  <div class="wrap footer-identity">
+    Perpenda — an independent product, built in Lisbon, Portugal.
+    Contact <a href="mailto:hello@perpenda.com">hello@perpenda.com</a>. © 2026 Perpenda.
   </div>
 </footer>
 
