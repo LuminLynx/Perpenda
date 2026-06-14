@@ -39,7 +39,7 @@ Sideload the signed APK directly. Google Play Protect verifies on install. The i
 
 - **[Download the latest APK](https://github.com/LuminLynx/Perpenda/releases/latest/download/app-release.apk)** · Android 8.0 (API 26)+
 - **[SHA-256 fingerprint](https://github.com/LuminLynx/Perpenda/releases/latest/download/app-release.apk.sha256)** for verification
-- Full install instructions: **[perpenda.com/#download](https://perpenda.com/#download)**
+- All releases & notes: **[GitHub Releases](https://github.com/LuminLynx/Perpenda/releases)**
 
 ---
 
@@ -64,7 +64,7 @@ Perpenda is not a math-first ML course, a code-first engineering curriculum, a g
 
 ## Current release
 
-**v1.1.** Builds on the v1.0 sideload release (first shipped 1 June 2026) with account hardening and a stricter learning loop. The signed APK is hosted on [GitHub Releases](https://github.com/LuminLynx/Perpenda/releases) and linked from [perpenda.com/#download](https://perpenda.com/#download); the app surfaces an in-app banner when a new version is available.
+**v1.1.** Builds on the v1.0 sideload release (first shipped 1 June 2026) with account hardening and a stricter learning loop. The signed APK is hosted on [GitHub Releases](https://github.com/LuminLynx/Perpenda/releases); the app surfaces an in-app banner when a new version is available.
 
 What v1.1 ships:
 
