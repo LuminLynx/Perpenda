@@ -24,3 +24,8 @@ gradle-cache-agp-8.5.2-v1.tar.zst
 .env
 .env.*
 !.env.example
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
