@@ -108,7 +108,12 @@
      horizontal scroll on narrow phones. */
   footer .row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 24px; }
   footer .grow { flex: 1; }
-  @media (max-width: 560px) { footer .grow { display: none; } }
+  @media (max-width: 560px) {
+    footer .grow { display: none; }
+    /* Hide the "·" separators once the row wraps so a lone dot doesn't
+       dangle at a line break (GPL-3.0 is the last span and stays). */
+    footer .row > span:not(:last-child) { display: none; }
+  }
 
   @media (max-width: 880px) {
     /* Keep all nav links visible on tablet-portrait / phones; wrap them
