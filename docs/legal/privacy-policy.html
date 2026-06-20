@@ -43,7 +43,7 @@
     background: var(--paper-0);
     border-bottom: 1px solid var(--hair-1);
   }
-  nav.top .row { display: flex; align-items: center; gap: 16px; padding: 14px 0; }
+  nav.top .row { display: flex; align-items: center; gap: 16px; padding-top: 14px; padding-bottom: 14px; }
   .wordmark { display: flex; align-items: center; gap: 10px; }
   .wordmark img { height: 28px; width: auto; display: block; }
   .wordmark .name {
@@ -112,11 +112,23 @@
     margin-top: 80px; padding: 32px 0;
     font-family: var(--font-ui); font-size: 12px; color: var(--ink-3);
   }
-  footer .row { display: flex; align-items: center; gap: 24px; }
+  /* flex-wrap keeps the footer (long repo URL included) from forcing
+     horizontal scroll on narrow phones. */
+  footer .row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 24px; }
   footer .grow { flex: 1; }
+  @media (max-width: 560px) {
+    footer .grow { display: none; }
+    /* Hide the "·" separators once the row wraps so a lone dot doesn't
+       dangle at a line break (GPL-3.0 is the last span and stays). */
+    footer .row > span:not(:last-child) { display: none; }
+  }
 
   @media (max-width: 880px) {
-    nav .link.hide-md { display: none; }
+    /* Keep all nav links visible on tablet-portrait / phones; wrap them
+       onto a second line under the wordmark rather than hiding them. */
+    nav.top .row { flex-wrap: wrap; row-gap: 4px; }
+    nav.top .grow { flex: 0 0 100%; height: 0; }
+    nav a.link { font-size: 11px; }
     .article .eyebrow { margin-top: 48px; }
   }
 </style>
