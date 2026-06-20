@@ -100,6 +100,66 @@
 }
 </script>
 
+<!-- FAQ structured data (JSON-LD). Mirrors the visible FAQ section so
+     search and AI answer engines can surface and cite the answers. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "url": "https://perpenda.com/#faq",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Perpenda?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Perpenda is a focused Android reader that teaches LLM systems to senior product managers — one trade-off at a time. It runs twenty units in one curated order, each a single decision trade-off, with calibrated grading against rubric criteria. No streaks, no badges, no daily nudge."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who is Perpenda for?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Senior product managers who make build / buy / skip calls on AI features and need to back those calls with calibrated reasoning — people who'd rather decide right than read fast."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is Perpenda different from other AI courses?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Most AI-fluency content treats PMs like coding-bootcamp students. Perpenda treats you like the decision-maker you are: every unit teaches one concept through the same three-question scaffold — when it matters, when it breaks, and what it costs to get right."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does it cost, and what do I need to run it?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Perpenda is a free Android app for Android 8.0 and above, released under the GPL-3.0 license."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How many units are there, and are they all available?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "There are twenty units in one curated path, \"LLM Systems for PMs.\" Fifteen are published; the final five operating-phase units — monitoring, vendor risk, A/B testing, and fallbacks — unlock from real-use signal rather than from the armchair."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does \"calibrated grading\" mean?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Each unit's claims carry a calibration tier — settled, contested, or unsettled — and sources sit after the decision prompt, never before, so the consensus doesn't prime your answer. The grader will tell you when it doesn't have enough signal to grade fairly."
+      }
+    }
+  ]
+}
+</script>
+
 <!-- Google Analytics (GA4) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-6YCV11TNED"></script>
 <script>
@@ -327,6 +387,21 @@
     max-width: 36ch;
   }
   .pullquote em { font-style: italic; }
+
+  /* ─── FAQ ─────────────────────────────────────────────── */
+  .faq .faq-list { margin-top: 24px; }
+  .faq .faq-item {
+    padding: 22px 0; border-top: 1px solid var(--hair-1);
+  }
+  .faq .faq-item:last-child { border-bottom: 1px solid var(--hair-1); }
+  .faq .faq-item h3 {
+    font-family: var(--font-display); font-size: 21px; line-height: 1.25;
+    font-weight: 500; margin: 0 0 8px; color: var(--ink-1);
+  }
+  .faq .faq-item p {
+    font-family: var(--font-body); font-size: 16px; line-height: 1.55;
+    color: var(--ink-2); margin: 0; max-width: 68ch;
+  }
 
   /* ─── Download band ─────────────────────────────────── */
   .download .lede { max-width: 60ch; }
@@ -613,6 +688,40 @@
     </div>
     <div class="pullquote">
       <em>Confidence as a feature, not a softening.</em>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ─────────────────────────────────────────────── -->
+<section id="faq" class="band faq">
+  <div class="wrap">
+    <div class="band-eyebrow">Questions</div>
+    <h2 class="band-h">Before you ask.</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <h3>What is Perpenda?</h3>
+        <p>Perpenda is a focused Android reader that teaches LLM systems to senior product managers — one trade-off at a time. It runs twenty units in one curated order, each a single decision trade-off, with calibrated grading against rubric criteria. No streaks, no badges, no daily nudge.</p>
+      </div>
+      <div class="faq-item">
+        <h3>Who is Perpenda for?</h3>
+        <p>Senior product managers who make build / buy / skip calls on AI features and need to back those calls with calibrated reasoning — people who'd rather decide right than read fast.</p>
+      </div>
+      <div class="faq-item">
+        <h3>How is Perpenda different from other AI courses?</h3>
+        <p>Most AI-fluency content treats PMs like coding-bootcamp students. Perpenda treats you like the decision-maker you are: every unit teaches one concept through the same three-question scaffold — when it matters, when it breaks, and what it costs to get right.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What does it cost, and what do I need to run it?</h3>
+        <p>Perpenda is a free Android app for Android 8.0 and above, released under the GPL-3.0 license.</p>
+      </div>
+      <div class="faq-item">
+        <h3>How many units are there, and are they all available?</h3>
+        <p>There are twenty units in one curated path, "LLM Systems for PMs." Fifteen are published; the final five operating-phase units — monitoring, vendor risk, A/B testing, and fallbacks — unlock from real-use signal rather than from the armchair.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What does "calibrated grading" mean?</h3>
+        <p>Each unit's claims carry a calibration tier — settled, contested, or unsettled — and sources sit after the decision prompt, never before, so the consensus doesn't prime your answer. The grader will tell you when it doesn't have enough signal to grade fairly.</p>
+      </div>
     </div>
   </div>
 </section>
