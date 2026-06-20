@@ -1,4 +1,46 @@
+# Perpenda — robots.txt
+# Policy: be found, read, and cited. All crawlers are welcome, including
+# AI answer-engine (retrieval) and AI training crawlers. The named groups
+# below document that intent explicitly; the wildcard already permits them.
+
 User-agent: *
+Allow: /
+
+# ── AI answer-engine / retrieval crawlers (live citation) ──
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+# Google-Extended gates AI Overviews / Gemini grounding (not normal Search) —
+# allowed so Perpenda is eligible to be surfaced and cited there.
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# ── AI training crawlers ──
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: CCBot
 Allow: /
 
 Sitemap: https://perpenda.com/sitemap.xml

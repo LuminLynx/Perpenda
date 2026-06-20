@@ -1,0 +1,20 @@
+# Perpenda
+
+> Decision-grade fluency in LLM systems, for product managers. Perpenda is a focused Android reader that teaches senior PMs to make build / buy / skip calls on AI features — one trade-off at a time. Twenty units in one curated order, calibrated grading against rubric criteria. No streaks, no badges, no daily nudge.
+
+Perpenda is an independent product, built in Lisbon, Portugal, and released under GPL-3.0. The path "LLM Systems for PMs" runs twenty units in a fixed order; fifteen are published and the final five operating-phase units unlock from real-use signal. Every claim is sourced and tagged by calibration tier — settled, contested, or unsettled — with sources placed after the decision prompt so consensus doesn't prime the answer.
+
+## Core
+
+- [Home](https://perpenda.com/): Product overview — the thesis (a trade-off, not a topic), the twenty-unit path, the two core app screens, and the calibration approach.
+- [Marginalia (notes / blog)](https://perpenda.com/blog/): Notes in the margins of building Perpenda — LLM systems, product judgment, and what's worth a PM's attention. In English, and in Portuguese where it serves Portuguese readers.
+
+## Writing
+
+- [Amy Edmondson at QSP 2026: a primer for product managers](https://perpenda.com/blog/qsp-2026-amy-edmondson.html): Why the researcher behind psychological safety and intelligent failure is the most operationally useful QSP Summit 2026 speaker for teams shipping AI products. With a Portuguese summary.
+- [Virginia Dignum at QSP 2026: responsible AI beyond the checkbox](https://perpenda.com/blog/qsp-2026-virginia-dignum.html): What Virginia Dignum's work on AI governance and the EU AI Act means for product teams shipping AI. With a Portuguese version.
+
+## Legal
+
+- [Privacy policy](https://perpenda.com/legal/privacy-policy.html): What data the app collects, how it's used, and how to delete it. No advertising SDKs, no behavioural analytics.
+- [Account deletion](https://perpenda.com/legal/account-deletion.html): How to delete your account and associated data.
