@@ -138,7 +138,10 @@
   }
   nav.top .row {
     display: flex; align-items: center; gap: 16px;
-    padding: 14px 0;
+    /* Vertical padding only — the `0` in a `14px 0` shorthand would
+       override .wrap's horizontal gutter and let the wordmark/links
+       bleed to the screen edge (the "P" was being clipped). */
+    padding-top: 14px; padding-bottom: 14px;
   }
   .wordmark { display: flex; align-items: center; gap: 10px; }
   .wordmark img { height: 28px; width: auto; display: block; }
@@ -417,13 +420,26 @@
     .screens .strip { grid-template-columns: repeat(2, 1fr); }
     .path .unit { grid-template-columns: 36px 1fr auto; }
     .path .unit .status { display: none; }
-    nav .link.hide-md { display: none; }
+    /* Keep the nav links visible on tablet-portrait / phones instead of
+       hiding them (the old rule dropped them entirely, leaving only the
+       wordmark). Let them wrap onto a second line under the wordmark. */
+    nav.top .row { flex-wrap: wrap; row-gap: 4px; }
+    nav.top .grow { flex: 0 0 100%; height: 0; }
+    nav a.link { font-size: 11px; }
     .hero { padding: 56px 0 72px; }
     section.band { padding: 56px 0; }
   }
   @media (max-width: 520px) {
     .screens .strip { grid-template-columns: 1fr; }
     .cal .row { grid-template-columns: 1fr; gap: 8px; }
+    /* Tighten the nav links so all four fit comfortably on phones. */
+    nav.top .row { gap: 12px; }
+    nav a.link { letter-spacing: 0.08em; }
+    /* Stop the hero meta labels wrapping mid-phrase; drop the hairline
+       rules, which look broken once the row wraps. */
+    .hero .meta { flex-wrap: wrap; gap: 8px 16px; margin-top: 40px; }
+    .hero .meta span:not(.rule) { white-space: nowrap; }
+    .hero .meta .rule { display: none; }
     footer .footer-row { flex-wrap: wrap; gap: 8px 16px; }
     footer .footer-row .grow { display: none; }
     footer .footer-row .wordmark { flex-basis: 100%; }
