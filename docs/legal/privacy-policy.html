@@ -112,8 +112,11 @@
     margin-top: 80px; padding: 32px 0;
     font-family: var(--font-ui); font-size: 12px; color: var(--ink-3);
   }
-  footer .row { display: flex; align-items: center; gap: 24px; }
+  /* flex-wrap keeps the footer (long repo URL included) from forcing
+     horizontal scroll on narrow phones. */
+  footer .row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 24px; }
   footer .grow { flex: 1; }
+  @media (max-width: 560px) { footer .grow { display: none; } }
 
   @media (max-width: 880px) {
     /* Keep all nav links visible on tablet-portrait / phones; wrap them

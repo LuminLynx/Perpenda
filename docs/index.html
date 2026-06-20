@@ -117,6 +117,9 @@
      (colors_and_type.css) defines light as the default :root and dark
      via @media (prefers-color-scheme: dark). */
   html { color-scheme: light dark; }
+  /* Offset in-page anchor jumps (#path, #screens, #top) so the target
+     heading lands below the sticky nav instead of behind it. */
+  html { scroll-padding-top: 80px; }
   html, body { margin: 0; padding: 0; }
   body {
     background: var(--paper-0); color: var(--ink-1);
@@ -426,6 +429,8 @@
     nav.top .row { flex-wrap: wrap; row-gap: 4px; }
     nav.top .grow { flex: 0 0 100%; height: 0; }
     nav a.link { font-size: 11px; }
+    /* The wrapped two-line nav is taller here — widen the anchor offset. */
+    html { scroll-padding-top: 120px; }
     .hero { padding: 56px 0 72px; }
     section.band { padding: 56px 0; }
   }
