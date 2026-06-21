@@ -8,7 +8,7 @@ data class ApiConfig(
     val readTimeoutMillis: Long = 15_000
 ) {
     companion object {
-        const val DEFAULT_BASE_URL = "https://aware-wholeness-production-d771.up.railway.app/"
+        const val DEFAULT_BASE_URL = "https://api.perpenda.com/"
 
         fun fromBuildConfig(): ApiConfig {
             val configuredBaseUrl = BuildConfig.API_BASE_URL
