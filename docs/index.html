@@ -13,7 +13,7 @@
 <meta name="gridinsoft-key" content="io1sg3f0vffx2tig99u9px0o5k3k530ygljrfkc28wctus5ke33m3mduw9xpt4tz" />
 
 <meta property="og:title" content="Perpenda — Decision-grade fluency in LLM systems" />
-<meta property="og:description" content="Twenty trade-offs. One PM, deciding. No streaks, no badges, no daily nudge." />
+<meta property="og:description" content="One trade-off at a time. One PM, deciding. No streaks, no badges, no daily nudge." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://perpenda.com/" />
 <meta property="og:site_name" content="Perpenda" />
@@ -23,7 +23,7 @@
 
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="Perpenda — Decision-grade fluency in LLM systems" />
-<meta name="twitter:description" content="Twenty trade-offs. One PM, deciding. No streaks, no badges, no daily nudge." />
+<meta name="twitter:description" content="One trade-off at a time. One PM, deciding. No streaks, no badges, no daily nudge." />
 <meta name="twitter:image" content="https://perpenda.com/brand/perpenda-og-1200x630.png" />
 
 <link rel="icon" type="image/svg+xml" href="brand/perpenda-mark-ink.svg" />
@@ -83,15 +83,10 @@
       "@type": "SoftwareApplication",
       "name": "Perpenda",
       "applicationCategory": "EducationalApplication",
-      "operatingSystem": "Android 8.0+",
+      "operatingSystem": "Android",
       "description": "Train the AI judgment your team now expects from you. Tight units, decision prompts, calibrated grading against rubric criteria — no streaks, no badges, no daily nudge.",
       "url": "https://perpenda.com/",
       "image": "https://perpenda.com/brand/perpenda-og-1200x630.png",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
       "publisher": { "@id": "https://perpenda.com/#organization" },
       "softwareVersion": "1.1",
       "inLanguage": "en"
@@ -113,7 +108,7 @@
       "name": "What is Perpenda?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Perpenda is a focused Android reader that teaches LLM systems to senior product managers — one trade-off at a time. It runs twenty units in one curated order, each a single decision trade-off, with calibrated grading against rubric criteria. No streaks, no badges, no daily nudge."
+        "text": "Perpenda is a focused Android reader that teaches LLM systems to senior product managers — one trade-off at a time. It works through a curated path of single-trade-off units, in a fixed order, with calibrated grading against rubric criteria. No streaks, no badges, no daily nudge."
       }
     },
     {
@@ -121,31 +116,31 @@
       "name": "Who is Perpenda for?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Senior product managers who make build / buy / skip calls on AI features and need to back those calls with calibrated reasoning — people who'd rather decide right than read fast."
+        "text": "Product professionals with stakes in AI-shaping decisions — product managers first, but also product marketers, founders, design leads, and product-adjacent execs, plus career-switchers moving into the field. Anyone who makes build / buy / skip calls on AI features and needs to back them with calibrated reasoning — people who'd rather decide right than read fast."
       }
     },
     {
       "@type": "Question",
-      "name": "How is Perpenda different from other AI courses?",
+      "name": "What's Perpenda's approach?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Most AI-fluency content treats PMs like coding-bootcamp students. Perpenda treats you like the decision-maker you are: every unit teaches one concept through the same three-question scaffold — when it matters, when it breaks, and what it costs to get right."
+        "text": "Perpenda teaches decisions before mechanism. Every unit is a single trade-off — when it matters, when it breaks, what it costs to get right — and every claim is sourced and tagged by confidence (settled, contested, unsettled). The aim is judgment you can act on, not theory you can recite."
       }
     },
     {
       "@type": "Question",
-      "name": "What does it cost, and what do I need to run it?",
+      "name": "What do I need to run it?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Perpenda is a free Android app for Android 8.0 and above, released under the GPL-3.0 license."
+        "text": "Perpenda is an open-source Android app, released under the GPL-3.0 license, with no ads and no behavioural tracking. All you need to run it is a modern Android phone and an account."
       }
     },
     {
       "@type": "Question",
-      "name": "How many units are there, and are they all available?",
+      "name": "How many units are available?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "There are twenty units in one curated path, \"LLM Systems for PMs.\" Fifteen are published; the final five operating-phase units — monitoring, vendor risk, A/B testing, and fallbacks — unlock from real-use signal rather than from the armchair."
+        "text": "Fifteen units are published today, each a single decision trade-off. The final units are deliberately left open — they're shaped during the closed beta rather than planned in advance."
       }
     },
     {
@@ -403,61 +398,6 @@
     color: var(--ink-2); margin: 0; max-width: 68ch;
   }
 
-  /* ─── Download band ─────────────────────────────────── */
-  .download .lede { max-width: 60ch; }
-  .release-card {
-    border: 1px solid var(--hair-1);
-    border-radius: 4px;
-    padding: 28px 32px;
-    margin: 24px 0 8px;
-    display: flex;
-    align-items: center;
-    gap: 40px;
-    flex-wrap: wrap;
-    background: var(--paper-1);
-  }
-  .release-meta {
-    margin: 0;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    gap: 8px 24px;
-    flex: 1 1 320px;
-  }
-  .release-meta dt {
-    font-family: var(--font-ui); font-size: 11px; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-3);
-    margin: 0; padding-top: 2px;
-  }
-  .release-meta dd {
-    margin: 0;
-    font-family: var(--font-body); font-size: 16px; color: var(--ink-1);
-    font-variant-numeric: tabular-nums;
-  }
-  .release-actions {
-    display: flex; flex-direction: column; gap: 10px;
-    align-items: flex-start;
-  }
-  .release-actions .link-sm {
-    font-family: var(--font-ui); font-size: 11px; color: var(--ink-3);
-    text-transform: uppercase; letter-spacing: 0.12em;
-  }
-  .release-actions .link-sm:hover { color: var(--ink-1); }
-  .install-h {
-    font-family: var(--font-display); font-size: 19px; font-weight: 500;
-    margin: 32px 0 8px;
-    color: var(--ink-1);
-  }
-  .install-steps {
-    font-family: var(--font-body); font-size: 16px; line-height: 1.55;
-    color: var(--ink-2); margin: 0 0 16px; padding-left: 24px;
-    max-width: 64ch;
-  }
-  .install-steps li { margin: 6px 0; }
-  .band-footer-note {
-    font-family: var(--font-body); font-size: 14px; color: var(--ink-3);
-    margin: 16px 0 0; max-width: 60ch;
-  }
-
   /* ─── CTA ─────────────────────────────────────────────── */
   .cta {
     text-align: center; padding: 96px 0;
@@ -628,7 +568,7 @@
       <div class="unit"><div class="num">§ 13</div><div class="name">Multimodal · vision basics</div><div class="tag tag-contested">Contested</div><div class="status">Published</div></div>
       <div class="unit"><div class="num">§ 14</div><div class="name">Agents · multi-step reasoning</div><div class="tag tag-contested">Contested</div><div class="status">Published</div></div>
       <div class="unit"><div class="num">§ 15</div><div class="name">Safety + content moderation</div><div class="tag tag-contested">Contested</div><div class="status">Published</div></div>
-      <div class="unit"><div class="num">§ 16–20</div><div class="name">Operating units — monitoring · vendor risk · A/B · fallbacks</div><div class="tag tag-locked">Locked</div><div class="status">From real-use signal</div></div>
+      <div class="unit"><div class="num">§ 16–20</div><div class="name">Operating-phase units</div><div class="tag tag-locked">Locked</div><div class="status">From real-use signal</div></div>
     </div>
   </div>
 </section>
@@ -700,23 +640,23 @@
     <div class="faq-list">
       <div class="faq-item">
         <h3>What is Perpenda?</h3>
-        <p>Perpenda is a focused Android reader that teaches LLM systems to senior product managers — one trade-off at a time. It runs twenty units in one curated order, each a single decision trade-off, with calibrated grading against rubric criteria. No streaks, no badges, no daily nudge.</p>
+        <p>Perpenda is a focused Android reader that teaches LLM systems to senior product managers — one trade-off at a time. It works through a curated path of single-trade-off units, in a fixed order, with calibrated grading against rubric criteria. No streaks, no badges, no daily nudge.</p>
       </div>
       <div class="faq-item">
         <h3>Who is Perpenda for?</h3>
-        <p>Senior product managers who make build / buy / skip calls on AI features and need to back those calls with calibrated reasoning — people who'd rather decide right than read fast.</p>
+        <p>Product professionals with stakes in AI-shaping decisions — product managers first, but also product marketers, founders, design leads, and product-adjacent execs, plus career-switchers moving into the field. Anyone who makes build / buy / skip calls on AI features and needs to back them with calibrated reasoning — people who'd rather decide right than read fast.</p>
       </div>
       <div class="faq-item">
-        <h3>How is Perpenda different from other AI courses?</h3>
-        <p>Most AI-fluency content treats PMs like coding-bootcamp students. Perpenda treats you like the decision-maker you are: every unit teaches one concept through the same three-question scaffold — when it matters, when it breaks, and what it costs to get right.</p>
+        <h3>What's Perpenda's approach?</h3>
+        <p>Perpenda teaches decisions before mechanism. Every unit is a single trade-off — when it matters, when it breaks, what it costs to get right — and every claim is sourced and tagged by confidence (settled, contested, unsettled). The aim is judgment you can act on, not theory you can recite.</p>
       </div>
       <div class="faq-item">
-        <h3>What does it cost, and what do I need to run it?</h3>
+        <h3>What do I need to run it?</h3>
         <p>Perpenda is an open-source Android app, released under the GPL-3.0 license, with no ads and no behavioural tracking. All you need to run it is a modern Android phone and an account.</p>
       </div>
       <div class="faq-item">
-        <h3>How many units are there, and are they all available?</h3>
-        <p>There are twenty units in one curated path, "LLM Systems for PMs." Fifteen are published; the final five operating-phase units — monitoring, vendor risk, A/B testing, and fallbacks — unlock from real-use signal rather than from the armchair.</p>
+        <h3>How many units are available?</h3>
+        <p>Fifteen units are published today, each a single decision trade-off. The final units are deliberately left open — they're shaped during the closed beta rather than planned in advance.</p>
       </div>
       <div class="faq-item">
         <h3>What does "calibrated grading" mean?</h3>
