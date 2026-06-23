@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>About Perpenda — decision-grade AI fluency for product managers</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="What Perpenda is, who it's for, and how it works: a focused Android reader that trains product managers to make build / buy / skip calls on AI features — one trade-off at a time, with calibrated grading. Independent, built in Lisbon, GPL-3.0." />
+<meta name="robots" content="index,follow" />
+<link rel="canonical" href="https://perpenda.com/about.html" />
+
+<meta property="og:title" content="About Perpenda" />
+<meta property="og:description" content="A focused Android reader that trains product managers to make build / buy / skip calls on AI features — one trade-off at a time. Independent, built in Lisbon, GPL-3.0." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://perpenda.com/about.html" />
+<meta property="og:site_name" content="Perpenda" />
+<meta property="og:image" content="https://perpenda.com/brand/perpenda-og-1200x630.png" />
+
+<link rel="icon" type="image/svg+xml" href="brand/perpenda-mark-ink.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="brand/favicon-32.png" />
+
+<!-- AboutPage structured data — binds this page to the Perpenda Organization
+     entity (defined on the homepage) so search and AI answer engines attribute
+     the description to the right entity. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  "url": "https://perpenda.com/about.html",
+  "name": "About Perpenda",
+  "inLanguage": "en",
+  "isPartOf": { "@id": "https://perpenda.com/#website" },
+  "publisher": { "@id": "https://perpenda.com/#organization" },
+  "mainEntity": { "@id": "https://perpenda.com/#organization" }
+}
+</script>
+
+<!-- Breadcrumb trail (JSON-LD): Home › About. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://perpenda.com/" },
+    { "@type": "ListItem", "position": 2, "name": "About", "item": "https://perpenda.com/about.html" }
+  ]
+}
+</script>
+
+<link rel="stylesheet" href="styles/colors_and_type.css" />
+
+<style>
+  html { color-scheme: light dark; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper-0); color: var(--ink-1);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  a { color: var(--oxblood); text-decoration: none; }
+  a:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+  /* ─── Top nav (mirrors the landing page) ─────────────────── */
+  nav.top {
+    position: sticky; top: 0; z-index: 10;
+    background: var(--paper-0);
+    border-bottom: 1px solid var(--hair-1);
+  }
+  nav.top .row { display: flex; align-items: center; gap: 16px; padding-top: 14px; padding-bottom: 14px; }
+  .wordmark { display: flex; align-items: center; gap: 10px; }
+  .wordmark img { height: 28px; width: auto; display: block; }
+  nav .grow { flex: 1; }
+  nav a.link {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-2);
+  }
+  nav a.link:hover { color: var(--ink-1); text-decoration: none; }
+
+  /* ─── Masthead ───────────────────────────────────────────── */
+  .masthead { padding: 72px 0 48px; }
+  .masthead .eyebrow {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-3);
+    margin-bottom: 20px; display: flex; align-items: center; gap: 12px;
+  }
+  .masthead .eyebrow .dot { width: 7px; height: 7px; background: var(--oxblood); border-radius: 50%; }
+  .masthead h1 {
+    font-family: var(--font-display);
+    font-size: clamp(38px, 6vw, 60px); line-height: 1.06;
+    font-weight: 400; letter-spacing: -0.018em; margin: 0 0 18px;
+  }
+  .masthead h1 em { font-style: italic; color: var(--oxblood); font-weight: 400; }
+  .masthead .lede {
+    font-size: clamp(17px, 1.5vw, 21px); line-height: 1.55;
+    color: var(--ink-2); margin: 0; max-width: 60ch;
+  }
+
+  /* ─── Prose sections ─────────────────────────────────────── */
+  .prose { padding-bottom: 40px; }
+  .prose section { padding: 36px 0; border-top: 1px solid var(--hair-1); }
+  .prose section:first-child { border-top: none; padding-top: 8px; }
+  .prose h2 {
+    font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.16em; color: var(--ink-3);
+    margin: 0 0 16px;
+  }
+  .prose p {
+    font-size: 17px; line-height: 1.62; color: var(--ink-1);
+    margin: 0 0 16px; max-width: 64ch;
+  }
+  .prose p:last-child { margin-bottom: 0; }
+  .prose p .em { color: var(--oxblood); font-style: italic; }
+  .prose strong { font-weight: 600; }
+
+  /* ─── Fact ledger ────────────────────────────────────────── */
+  .facts { display: grid; grid-template-columns: 150px 1fr; gap: 0; max-width: 64ch; }
+  .facts dt {
+    font-family: var(--font-mono); font-size: 13px; color: var(--ink-3);
+    padding: 12px 0; border-top: 1px solid var(--hair-1);
+  }
+  .facts dd {
+    font-size: 15.5px; line-height: 1.5; color: var(--ink-1);
+    padding: 12px 0; border-top: 1px solid var(--hair-1); margin: 0;
+  }
+  .facts dt:first-of-type, .facts dd:first-of-type { border-top: none; }
+
+  /* ─── Footer ─────────────────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--hair-1);
+    padding: 28px 0;
+    font-family: var(--font-ui); font-size: 12px; color: var(--ink-3);
+  }
+  footer a { color: var(--ink-3); }
+  footer a:hover { color: var(--ink-1); }
+  footer .grow { flex: 1; }
+
+  @media (max-width: 560px) {
+    .facts { grid-template-columns: 1fr; gap: 0; }
+    .facts dt { padding-bottom: 2px; border-top: 1px solid var(--hair-1); }
+    .facts dd { padding-top: 2px; border-top: none; }
+  }
+</style>
+</head>
+<body id="top">
+
+<nav class="top">
+  <div class="wrap row">
+    <a class="wordmark" href="./">
+      <picture>
+        <source srcset="brand/perpenda-wordmark-dark.svg" media="(prefers-color-scheme: dark)" />
+        <img src="brand/perpenda-wordmark.svg" alt="Perpenda" />
+      </picture>
+    </a>
+    <div class="grow"></div>
+    <a class="link" href="blog/">Marginalia</a>
+    <a class="link" href="https://github.com/LuminLynx/Perpenda">GitHub</a>
+  </div>
+</nav>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="eyebrow"><span class="dot"></span> About</div>
+    <h1>One trade-off <em>at a time</em>.</h1>
+    <p class="lede">
+      Perpenda is a focused Android reader that trains product managers to make
+      build / buy / skip calls on AI features — the judgment their teams now
+      expect from them. Not a topic to skim. A decision to get right.
+    </p>
+  </div>
+</header>
+
+<main class="prose">
+  <div class="wrap">
+
+    <section>
+      <h2>The thesis</h2>
+      <p>
+        Most AI-literacy material teaches <em>topics</em> — what a token is, what
+        RAG stands for. Perpenda teaches <strong>trade-offs</strong>. Every unit
+        lands on a decision a product manager actually has to make: where latency
+        is worth its cost, when retrieval beats a bigger prompt, what a rubric
+        should reward, when "good enough" really is. You read a tight unit, you
+        commit to a call, and your reasoning is graded against rubric criteria —
+        not a multiple-choice key.
+      </p>
+      <p>
+        There are no streaks, no badges, and no daily nudge. The reward for
+        finishing a unit is being able to make the next decision faster and with
+        less hand-waving.
+      </p>
+    </section>
+
+    <section>
+      <h2>The path</h2>
+      <p>
+        The units form one curated order — <strong>LLM Systems for PMs</strong> —
+        built to reach twenty units. Fifteen are published today; the final five
+        are shaped during the closed beta, in response to where readers actually
+        get stuck, rather than planned in full in advance.
+      </p>
+      <p>
+        Each claim is sourced and tagged by calibration tier — <strong>settled</strong>,
+        <strong>contested</strong>, or <strong>unsettled</strong> — so you always
+        know how much weight a fact can bear. Sources sit <em>after</em> the
+        decision prompt, on purpose: consensus shouldn't prime your answer before
+        you've reasoned to it.
+      </p>
+    </section>
+
+    <section>
+      <h2>Who it's for</h2>
+      <p>
+        Product managers shipping AI features — and anyone who has to defend an
+        AI build / buy / skip decision to people who will ask hard questions
+        about it. It assumes you're fluent in product work and want to get fluent
+        in the systems, not the other way around.
+      </p>
+    </section>
+
+    <section>
+      <h2>Who makes it</h2>
+      <p>
+        Perpenda is an independent product, built in Lisbon, Portugal, and
+        released under the GPL-3.0 licence — the app and this site are open
+        source. It isn't backed by a platform vendor or a model provider, which
+        is why a unit can say a tool isn't worth its cost when it isn't.
+      </p>
+      <p>
+        Questions, corrections, or want a calibration tier challenged? Email
+        <a href="mailto:hello@perpenda.com">hello@perpenda.com</a> — every claim
+        is meant to be contestable.
+      </p>
+    </section>
+
+    <section>
+      <h2>The details</h2>
+      <dl class="facts">
+        <dt>Platform</dt>
+        <dd>Android. In closed testing on Google Play; a signed APK is also on GitHub Releases.</dd>
+        <dt>Path</dt>
+        <dd>LLM Systems for PMs — fifteen of twenty units published.</dd>
+        <dt>Grading</dt>
+        <dd>Calibrated against rubric criteria, not multiple choice.</dd>
+        <dt>Licence</dt>
+        <dd>GPL-3.0, source on <a href="https://github.com/LuminLynx/Perpenda">GitHub</a>.</dd>
+        <dt>Built in</dt>
+        <dd>Lisbon, Portugal.</dd>
+        <dt>Contact</dt>
+        <dd><a href="mailto:hello@perpenda.com">hello@perpenda.com</a></dd>
+      </dl>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap" style="display: flex; align-items: center; gap: 24px;">
+    <a href="./">perpenda.com</a>
+    <div class="grow"></div>
+    <a href="blog/">Marginalia</a>
+    <span>·</span>
+    <a href="https://github.com/LuminLynx/Perpenda">GitHub</a>
+    <span>·</span>
+    <span>GPL-3.0</span>
+  </div>
+</footer>
+
+</body>
+</html>
