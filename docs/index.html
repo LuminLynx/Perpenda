@@ -88,7 +88,7 @@
       "url": "https://perpenda.com/",
       "image": "https://perpenda.com/brand/perpenda-og-1200x630.png",
       "publisher": { "@id": "https://perpenda.com/#organization" },
-      "softwareVersion": "1.1",
+      "softwareVersion": "1.2",
       "inLanguage": "en"
     }
   ]
@@ -232,6 +232,17 @@
 
   /* ─── Hero ───────────────────────────────────────────────── */
   .hero { padding: 80px 0 96px; }
+  .hero .hero-grid {
+    display: grid; grid-template-columns: 1fr 420px;
+    gap: 56px; align-items: center;
+  }
+  .hero-art { display: flex; justify-content: center; }
+  .hero-art picture { display: block; width: 100%; max-width: 400px; }
+  .hero-art img {
+    width: 100%; height: auto; display: block;
+    border-radius: 16px; border: 1px solid var(--hair-1);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.22);
+  }
   .hero .eyebrow {
     font-family: var(--font-ui); font-size: 12px; font-weight: 600;
     text-transform: uppercase; letter-spacing: 0.18em; color: var(--ink-3);
@@ -254,6 +265,11 @@
     color: var(--ink-2); margin: 0 0 36px; max-width: 56ch;
   }
   .hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero .cta-note {
+    margin-top: 12px;
+    font-family: var(--font-ui); font-size: 12px; color: var(--ink-3);
+    letter-spacing: 0.02em;
+  }
   .hero .meta {
     margin-top: 56px; display: flex; align-items: center; gap: 20px;
     font-family: var(--font-ui); font-size: 11px; font-weight: 600;
@@ -302,6 +318,26 @@
     color: var(--ink-2); margin: 0;
   }
 
+  /* ─── What you'll learn ─────────────────────────────────── */
+  .learn .rows { margin-top: 24px; }
+  .learn .row {
+    display: grid; grid-template-columns: minmax(200px, 0.9fr) 1.4fr;
+    gap: 24px; align-items: baseline;
+    padding: 18px 0; border-top: 1px solid var(--hair-1);
+  }
+  .learn .row:last-child { border-bottom: 1px solid var(--hair-1); }
+  .learn .term {
+    font-family: var(--font-ui); font-size: 14px; font-weight: 600;
+    color: var(--ink-1); letter-spacing: 0.005em;
+  }
+  .learn .call {
+    font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+    color: var(--ink-2);
+  }
+  @media (max-width: 640px) {
+    .learn .row { grid-template-columns: 1fr; gap: 6px; }
+  }
+
   /* ─── The path ─────────────────────────────────────────── */
   .path .grid {
     display: grid; grid-template-columns: 1fr; gap: 0; margin-top: 12px;
@@ -334,8 +370,8 @@
 
   /* ─── Screens showcase ─────────────────────────────────── */
   .screens .strip {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
-    max-width: 720px; margin: 32px auto 0;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+    max-width: 1040px; margin: 32px auto 0;
   }
   .screen {
     display: flex; flex-direction: column; gap: 14px;
@@ -412,6 +448,11 @@
   .cta h2 em { font-style: italic; color: var(--oxblood); }
   .cta .lede { max-width: 52ch; margin: 0 auto 32px; }
   .cta .ctas { display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+  .cta .cta-note {
+    margin-top: 16px;
+    font-family: var(--font-body); font-size: 14px; color: var(--ink-3);
+    line-height: 1.5; max-width: 46ch; margin-left: auto; margin-right: auto;
+  }
   .cta .small {
     margin-top: 24px;
     font-family: var(--font-ui); font-size: 11px; font-weight: 600;
@@ -433,6 +474,8 @@
 
   /* ─── Responsive ─────────────────────────────────────── */
   @media (max-width: 880px) {
+    .hero .hero-grid { grid-template-columns: 1fr; gap: 0; }
+    .hero-art { display: none; }
     .thesis .cols { grid-template-columns: 1fr; gap: 0; }
     .thesis .col + .col { margin-top: 0; }
     .screens .strip { grid-template-columns: repeat(2, 1fr); }
@@ -450,7 +493,16 @@
     section.band { padding: 56px 0; }
   }
   @media (max-width: 520px) {
-    .screens .strip { grid-template-columns: 1fr; }
+    /* Gallery becomes a full-bleed horizontal swipe-strip on phones —
+       each screen snaps, the next one peeks. */
+    .screens .strip {
+      display: flex; grid-template-columns: none;
+      overflow-x: auto; scroll-snap-type: x mandatory;
+      gap: 16px; margin: 32px -24px 0; padding: 0 24px 6px;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .screens .strip::-webkit-scrollbar { display: none; }
+    .screens .strip .screen { flex: 0 0 72%; scroll-snap-align: start; }
     .cal .row { grid-template-columns: 1fr; gap: 8px; }
     /* Tighten the nav links so all four fit comfortably on phones. */
     nav.top .row { gap: 12px; }
@@ -489,24 +541,33 @@
 
 <!-- ─── Hero ─────────────────────────────────────────────── -->
 <header id="top" class="hero">
-  <div class="wrap">
-    <div class="eyebrow"><span class="dot"></span> Perpenda · LLM Systems for PMs</div>
-    <h1>Decision-grade fluency in LLM systems. <em>One trade-off at a time.</em></h1>
-    <p class="lede">
-      A focused Android reader for senior product managers who need to
-      make build / buy / skip calls on AI features — and back the call
-      up with calibrated reasoning. Twenty units, in order, each one a
-      single trade-off. No streaks. No badges. No daily nudge.
-    </p>
-    <div class="ctas">
-      <a class="btn btn-primary" href="https://github.com/LuminLynx/Perpenda">View on GitHub</a>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="dot"></span> Perpenda · LLM Systems for PMs</div>
+      <h1>Decision-grade fluency in LLM systems. <em>One trade-off at a time.</em></h1>
+      <p class="lede">
+        A focused Android reader for senior product managers who need to
+        make build / buy / skip calls on AI features — and back the call
+        up with calibrated reasoning. Fifteen units, in order, each one a
+        single trade-off. No streaks. No badges. No daily nudge.
+      </p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="https://github.com/LuminLynx/Perpenda">View on GitHub</a>
+      </div>
+      <div class="cta-note">Soon on Google Play.</div>
+      <div class="meta">
+        <span>v1.2 · June 2026</span>
+        <span class="rule"></span>
+        <span>15 units published</span>
+        <span class="rule"></span>
+        <span>GPL-3.0</span>
+      </div>
     </div>
-    <div class="meta">
-      <span>v1.1 · June 2026</span>
-      <span class="rule"></span>
-      <span>15 / 20 units published</span>
-      <span class="rule"></span>
-      <span>GPL-3.0</span>
+    <div class="hero-art" aria-hidden="true">
+      <picture>
+        <source srcset="app-store/screens-dark/01-path-home.png" media="(prefers-color-scheme: dark)" />
+        <img src="app-store/screens/01-path-home.png" alt="" />
+      </picture>
     </div>
   </div>
 </header>
@@ -542,15 +603,36 @@
   </div>
 </section>
 
+<!-- ─── What you'll learn ───────────────────────────────── -->
+<section id="learn" class="band learn">
+  <div class="wrap">
+    <div class="band-eyebrow">What you'll learn</div>
+    <h2 class="band-h">The vocabulary, <em>tied to the call.</em></h2>
+    <p class="lede">
+      Real terms, straight from the units — each one attached to a
+      decision you actually have to make. Fluency you can use on Monday,
+      not trivia.
+    </p>
+    <div class="rows">
+      <div class="row"><div class="term">Tokens · context windows · prompt caching</div><div class="call">Forecast cost and capacity in the unit vendors actually bill — before finance asks.</div></div>
+      <div class="row"><div class="term">TTFT · p50/p95 · streaming</div><div class="call">Set a latency budget and decide where streaming actually earns its keep.</div></div>
+      <div class="row"><div class="term">LLM-as-judge · golden sets · live A/B</div><div class="call">Decide how you'll measure quality before you commit to a model.</div></div>
+      <div class="row"><div class="term">Fine-tune vs. prompt vs. RAG</div><div class="call">Match the fix to the failure mode — knowledge gap, behavior gap, or spec gap.</div></div>
+      <div class="row"><div class="term">Recall@K · groundedness · faithfulness (RAGAS)</div><div class="call">Scope and evaluate a RAG system on the three axes that actually break.</div></div>
+      <div class="row"><div class="term">Agent decomposition · termination · tool schemas</div><div class="call">Know when an agent loop earns its cost — and when it's expensive theater.</div></div>
+    </div>
+  </div>
+</section>
+
 <!-- ─── The path ─────────────────────────────────────────── -->
 <section id="path" class="band path">
   <div class="wrap">
     <div class="band-eyebrow">The path</div>
-    <h2 class="band-h">Twenty units. <em>One curated order.</em></h2>
+    <h2 class="band-h">Fifteen units. <em>One curated order.</em></h2>
     <p class="lede">
       One path, in v1. <em>LLM Systems for PMs.</em> Fifteen units are
-      published; the last five — the operating-phase units — lock from
-      real-use signal rather than from the armchair.
+      published; more are shaped by the closed beta, rather than planned
+      from the armchair.
     </p>
     <div class="grid">
       <div class="unit"><div class="num">§ 01</div><div class="name">Tokenization</div><div class="tag tag-settled">Settled</div><div class="status">Published</div></div>
@@ -568,7 +650,7 @@
       <div class="unit"><div class="num">§ 13</div><div class="name">Multimodal · vision basics</div><div class="tag tag-contested">Contested</div><div class="status">Published</div></div>
       <div class="unit"><div class="num">§ 14</div><div class="name">Agents · multi-step reasoning</div><div class="tag tag-contested">Contested</div><div class="status">Published</div></div>
       <div class="unit"><div class="num">§ 15</div><div class="name">Safety + content moderation</div><div class="tag tag-contested">Contested</div><div class="status">Published</div></div>
-      <div class="unit"><div class="num">§ 16–20</div><div class="name">Operating-phase units</div><div class="tag tag-locked">Locked</div><div class="status">From real-use signal</div></div>
+      <div class="unit"><div class="num">§ +</div><div class="name">More units</div><div class="tag tag-locked">Planned</div><div class="status">Shaped by the closed beta</div></div>
     </div>
   </div>
 </section>
@@ -579,10 +661,10 @@
     <div class="band-eyebrow">The app</div>
     <h2 class="band-h">A briefing, not a course app.</h2>
     <p class="lede">
-      Two core screens — the path home and the unit reader. Editorial
-      typography, hairline rules, no decorative imagery, no progress bars
-      within a unit. The visual restraint is the design stance — and it
-      makes the writing earn its space.
+      The whole loop, screen by screen — find your next unit, read the
+      bite, decide, get per-criterion grading, see the sources, and
+      return for spaced review. Editorial typography, hairline rules, no
+      decorative imagery — the restraint makes the writing earn its space.
     </p>
     <div class="strip">
       <div class="screen">
@@ -593,7 +675,7 @@
           </picture>
         </div>
         <div class="cap">01 · Path home</div>
-        <div class="blurb">The next unit, one tap away. Optional spaced review surfaces alongside the path — never as a gate.</div>
+        <div class="blurb">Your next unit, one tap away.</div>
       </div>
       <div class="screen">
         <div class="img">
@@ -603,7 +685,47 @@
           </picture>
         </div>
         <div class="cap">02 · Unit reader</div>
-        <div class="blurb">One scroll. Same order, every unit. Definition, bite, framing, depth, prompt, calibration, sources.</div>
+        <div class="blurb">One scroll — definition, bite, depth.</div>
+      </div>
+      <div class="screen">
+        <div class="img">
+          <picture>
+            <source srcset="app-store/screens-dark/03-decision-prompt.png" media="(prefers-color-scheme: dark)" />
+            <img src="app-store/screens/03-decision-prompt.png" alt="Perpenda decision prompt" />
+          </picture>
+        </div>
+        <div class="cap">03 · Decision prompt</div>
+        <div class="blurb">You decide — open-ended, not multiple choice.</div>
+      </div>
+      <div class="screen">
+        <div class="img">
+          <picture>
+            <source srcset="app-store/screens-dark/04-grading.png" media="(prefers-color-scheme: dark)" />
+            <img src="app-store/screens/04-grading.png" alt="Perpenda calibrated grade" />
+          </picture>
+        </div>
+        <div class="cap">04 · The grade</div>
+        <div class="blurb">Per-criterion grading — with how sure it is.</div>
+      </div>
+      <div class="screen">
+        <div class="img">
+          <picture>
+            <source srcset="app-store/screens-dark/05-calibration-sources.png" media="(prefers-color-scheme: dark)" />
+            <img src="app-store/screens/05-calibration-sources.png" alt="Perpenda calibration and sources" />
+          </picture>
+        </div>
+        <div class="cap">05 · Calibration &amp; sources</div>
+        <div class="blurb">Every claim tagged and sourced — after you answer.</div>
+      </div>
+      <div class="screen">
+        <div class="img">
+          <picture>
+            <source srcset="app-store/screens-dark/06-spaced-review.png" media="(prefers-color-scheme: dark)" />
+            <img src="app-store/screens/06-spaced-review.png" alt="Perpenda spaced review" />
+          </picture>
+        </div>
+        <div class="cap">06 · Spaced review</div>
+        <div class="blurb">Surfaces alongside the path — never a gate.</div>
       </div>
     </div>
   </div>
@@ -671,14 +793,14 @@
   <div class="wrap">
     <h2>Built for the call <em>you have to make on Monday.</em></h2>
     <p class="lede">
-      Fifteen units, calibrated grading, the full loop. The remaining
-      five operating units lock from real-use signal rather than from
-      the armchair. Want to follow along? Leave an email and I'll write
-      when there's news worth your time.
+      Fifteen units, calibrated grading, the full loop. More units are
+      shaped by real use, not the armchair.
     </p>
     <div class="ctas">
-      <a class="btn btn-primary" href="mailto:hello@perpenda.com?subject=Email%20me%20about%20Perpenda">Email me about Perpenda</a>
+      <a class="btn btn-primary" href="https://github.com/LuminLynx/Perpenda">View on GitHub</a>
+      <a class="btn btn-secondary" href="mailto:hello@perpenda.com?subject=Join%20the%20Perpenda%20beta">Join the beta</a>
     </div>
+    <div class="cta-note">Perpenda is in closed testing on Google Play — email to be added as a tester.</div>
     <div class="small">No streaks. No badges. No daily nudge.</div>
   </div>
 </section>
