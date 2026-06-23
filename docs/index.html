@@ -523,6 +523,12 @@
     .hero .meta { flex-wrap: wrap; gap: 8px 16px; margin-top: 40px; }
     .hero .meta span:not(.rule) { white-space: nowrap; }
     .hero .meta .rule { display: none; }
+    /* Centre the footer on phones. The six labels can't fit one line at this
+       width, so the row wraps — centring makes a wrapped line (even a lone
+       "GPL-3.0") read as intentional instead of a left-orphaned item. */
+    footer { text-align: center; }
+    footer .footer-row { justify-content: center; gap: 8px 14px; }
+    footer .footer-row .wordmark { justify-content: center; }
   }
 </style>
 </head>
