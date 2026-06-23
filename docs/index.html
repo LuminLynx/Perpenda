@@ -469,6 +469,9 @@
     display: flex; flex-direction: column; gap: 14px;
   }
   footer .footer-row { display: flex; align-items: center; gap: 24px; width: 100%; }
+  /* Keep each footer label whole — never let "Delete account" or "GPL-3.0"
+     break mid-word when the row tightens on tablet widths. */
+  footer .footer-row a, footer .footer-row > span { white-space: nowrap; }
   footer .grow { flex: 1; }
   footer .footer-identity { color: var(--ink-3); }
   footer .footer-identity a { color: inherit; }
@@ -492,6 +495,13 @@
     html { scroll-padding-top: 120px; }
     .hero { padding: 56px 0 72px; }
     section.band { padding: 56px 0; }
+    /* Footer: once the single row no longer fits, wrap as whole labels with
+       the wordmark on its own line and the separator dots dropped — instead
+       of compressing items until "Delete account" splits across two lines. */
+    footer .footer-row { flex-wrap: wrap; gap: 8px 16px; }
+    footer .footer-row .grow { display: none; }
+    footer .footer-row .wordmark { flex-basis: 100%; }
+    footer .footer-row > span:not(:last-child) { display: none; }
   }
   @media (max-width: 520px) {
     /* Gallery becomes a full-bleed horizontal swipe-strip on phones —
@@ -513,10 +523,6 @@
     .hero .meta { flex-wrap: wrap; gap: 8px 16px; margin-top: 40px; }
     .hero .meta span:not(.rule) { white-space: nowrap; }
     .hero .meta .rule { display: none; }
-    footer .footer-row { flex-wrap: wrap; gap: 8px 16px; }
-    footer .footer-row .grow { display: none; }
-    footer .footer-row .wordmark { flex-basis: 100%; }
-    footer .footer-row > span:not(:last-child) { display: none; }
   }
 </style>
 </head>
