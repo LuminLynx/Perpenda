@@ -80,6 +80,13 @@ android {
                 "proguard-rules.pro"
             )
             signingConfig = signingConfigs.findByName("release")
+            // Embed native debug symbols in the bundle so Google Play (Android
+            // vitals) can symbolicate native crashes & ANRs from the bundled
+            // native libs — clears Play's "App Bundle contains native code …
+            // upload a symbol file" warning. Inherited by playRelease via
+            // initWith(). FULL = function names + line numbers; switch to
+            // "SYMBOL_TABLE" if the size bump matters.
+            ndk { debugSymbolLevel = "FULL" }
             // Sideload distribution: this artifact is the signed APK on GitHub
             // Releases. The in-app update banner is active. Build via
             // `:app:assembleRelease`.
@@ -131,7 +138,9 @@ sentry {
     projectName.set("android")
     autoUploadProguardMapping.set(sentryAuthToken != null)
     includeProguardMapping.set(true)
-    uploadNativeSymbols.set(false)
+    // Upload native debug symbols to Sentry too (only when authed, same as the
+    // mapping upload) so native crashes deobfuscate in the Sentry dashboard.
+    uploadNativeSymbols.set(sentryAuthToken != null)
     if (sentryAuthToken != null) {
         authToken.set(sentryAuthToken)
     }
