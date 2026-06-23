@@ -7,6 +7,7 @@ Perpenda is an independent product, built in Lisbon, Portugal, and released unde
 ## Core
 
 - [Home](https://perpenda.com/): Product overview — the thesis (a trade-off, not a topic), the curated path, the two core app screens, and the calibration approach.
+- [About](https://perpenda.com/about.html): What Perpenda is, who it's for, who makes it — the thesis, the path (fifteen of twenty units published), the calibration tiers, and the honest product status. Independent, built in Lisbon, GPL-3.0.
 - [Marginalia (notes / blog)](https://perpenda.com/blog/): Notes in the margins of building Perpenda — LLM systems, product judgment, and what's worth a PM's attention. In English, and in Portuguese where it serves Portuguese readers.
 
 ## Writing
