@@ -461,12 +461,15 @@
   }
 
   /* ─── Promo video ────────────────────────────────────── */
+  /* Compact band: no heading, tighter padding than a standard .band so the
+     video isn't ringed by whitespace. */
+  .band.watch { padding: 40px 0; }
   /* Click-to-load facade: only a poster image loads on page view; the
      YouTube (no-cookie) player is injected on click. Keeps the page fast
      and avoids pulling in the heavy embed until the visitor asks for it. */
   .watch .video {
     position: relative; width: 100%; max-width: 880px;
-    margin: 36px auto 0; aspect-ratio: 16 / 9;
+    margin: 0 auto; aspect-ratio: 16 / 9;
     border-radius: 14px; overflow: hidden;
     border: 1px solid var(--hair-1); background: #000;
     box-shadow: 0 30px 70px rgba(0, 0, 0, 0.22);
@@ -630,8 +633,6 @@
 <!-- ─── Promo video ─────────────────────────────────────── -->
 <section id="watch" class="band watch">
   <div class="wrap">
-    <div class="band-eyebrow">Watch</div>
-    <h2 class="band-h">See Perpenda <em>in a minute.</em></h2>
     <div class="video">
       <button class="video-facade" type="button" data-id="wr17Dj9LxGY"
               aria-label="Play the Perpenda video">
