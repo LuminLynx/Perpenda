@@ -479,6 +479,11 @@
     position: absolute; inset: 0; width: 100%; height: 100%;
     object-fit: cover; background: #000; display: block;
   }
+  /* In fullscreen the video fills the whole (often portrait) screen, where
+     `cover` would crop the 16:9 frame's sides and clip the centred title
+     text. Switch to `contain` so it letterboxes and the text always shows. */
+  .watch .video video:fullscreen,
+  .watch .video video:-webkit-full-screen { object-fit: contain; }
   /* Poster overlay with the play button placed in the empty lower band of the
      title-card frame, so it never sits on the centred headline. Clicking it
      hides the overlay and starts the native player. */
