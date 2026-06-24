@@ -479,6 +479,29 @@
     position: absolute; inset: 0; width: 100%; height: 100%;
     object-fit: cover; background: #000; display: block;
   }
+  /* Poster overlay with the play button placed in the empty lower band of the
+     title-card frame, so it never sits on the centred headline. Clicking it
+     hides the overlay and starts the native player. */
+  .watch .video-facade {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    padding: 0; border: 0; cursor: pointer; background: transparent; display: block;
+  }
+  .watch .video-facade img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .watch .video-facade.is-hidden { display: none; }
+  .watch .video-play {
+    position: absolute; left: 50%; top: 80%; transform: translate(-50%, -50%);
+    width: 56px; height: 56px; border-radius: 50%; background: var(--oxblood);
+    display: grid; place-items: center;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+    transition: transform 0.18s ease;
+  }
+  .watch .video-facade:hover .video-play,
+  .watch .video-facade:focus-visible .video-play { transform: translate(-50%, -50%) scale(1.07); }
+  .watch .video-play::after {
+    content: ""; width: 0; height: 0; margin-left: 4px;
+    border-style: solid; border-width: 11px 0 11px 18px;
+    border-color: transparent transparent transparent #fff;
+  }
 
   /* ─── Footer ─────────────────────────────────────────── */
   footer {
@@ -524,6 +547,9 @@
     footer .footer-row > span:not(:last-child) { display: none; }
   }
   @media (max-width: 520px) {
+    /* Smaller play button on the short phone-width video frame so it stays
+       clear of the poster headline. */
+    .watch .video-play { width: 44px; height: 44px; }
     /* Gallery becomes a full-bleed horizontal swipe-strip on phones —
        each screen snaps, the next one peeks. */
     .screens .strip {
@@ -622,6 +648,10 @@
              poster="media/perpenda-promo-poster.jpg">
         <source src="media/perpenda-promo.mp4" type="video/mp4" />
       </video>
+      <button class="video-facade" type="button" aria-label="Play the Perpenda film">
+        <img src="media/perpenda-promo-poster.jpg" alt="" />
+        <span class="video-play" aria-hidden="true"></span>
+      </button>
     </div>
   </div>
 </section>
@@ -886,6 +916,17 @@
     Contact <a href="mailto:hello@perpenda.com">hello@perpenda.com</a>. © 2026 Perpenda.
   </div>
 </footer>
+
+<!-- Promo video: hide the poster overlay and start the player on click. -->
+<script>
+  document.querySelectorAll('.watch .video-facade').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var v = btn.parentElement.querySelector('video');
+      btn.classList.add('is-hidden');
+      if (v) { v.play(); }
+    });
+  });
+</script>
 
 </body>
 </html>
