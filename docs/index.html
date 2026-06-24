@@ -495,12 +495,14 @@
     html { scroll-padding-top: 120px; }
     .hero { padding: 56px 0 72px; }
     section.band { padding: 56px 0; }
-    /* Footer: once the single row no longer fits, wrap as whole labels with
-       the wordmark on its own line and the separator dots dropped — instead
-       of compressing items until "Delete account" splits across two lines. */
-    footer .footer-row { flex-wrap: wrap; gap: 8px 16px; }
+    /* Footer: once the single row no longer fits (tablet portrait and down),
+       centre it — wordmark on its own line, links wrapping as whole labels
+       beneath, separator dots dropped. Centring keeps any wrapped line (even
+       a lone "GPL-3.0") looking intentional rather than left-orphaned. */
+    footer { text-align: center; }
+    footer .footer-row { flex-wrap: wrap; justify-content: center; gap: 8px 16px; }
     footer .footer-row .grow { display: none; }
-    footer .footer-row .wordmark { flex-basis: 100%; }
+    footer .footer-row .wordmark { flex-basis: 100%; justify-content: center; }
     footer .footer-row > span:not(:last-child) { display: none; }
   }
   @media (max-width: 520px) {
@@ -523,12 +525,6 @@
     .hero .meta { flex-wrap: wrap; gap: 8px 16px; margin-top: 40px; }
     .hero .meta span:not(.rule) { white-space: nowrap; }
     .hero .meta .rule { display: none; }
-    /* Centre the footer on phones. The six labels can't fit one line at this
-       width, so the row wraps — centring makes a wrapped line (even a lone
-       "GPL-3.0") read as intentional instead of a left-orphaned item. */
-    footer { text-align: center; }
-    footer .footer-row { justify-content: center; gap: 8px 14px; }
-    footer .footer-row .wordmark { justify-content: center; }
   }
 </style>
 </head>
