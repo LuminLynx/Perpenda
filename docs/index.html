@@ -265,12 +265,13 @@
     font-size: clamp(18px, 1.6vw, 22px); line-height: 1.55;
     color: var(--ink-2); margin: 0 0 36px; max-width: 56ch;
   }
-  .hero .ctas { display: flex; flex-wrap: wrap; gap: 12px; }
+  .hero .ctas { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
   .hero .cta-note {
-    margin-top: 12px;
+    display: inline-flex; align-items: center; gap: 7px;
     font-family: var(--font-ui); font-size: 12px; color: var(--ink-3);
     letter-spacing: 0.02em;
   }
+  .hero .gp-icon { width: 14px; height: 14px; flex: none; display: block; }
   .hero .meta {
     margin-top: 20px; display: flex; align-items: center; gap: 20px;
     font-family: var(--font-ui); font-size: 11px; font-weight: 600;
@@ -611,8 +612,16 @@
       </p>
       <div class="ctas">
         <a class="btn btn-primary" href="https://github.com/LuminLynx/Perpenda">View on GitHub</a>
+        <span class="cta-note">
+          Soon on Google Play.
+          <svg class="gp-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path fill="#00C3FF" d="M4 2 14 12 4 22Z" />
+            <path fill="#00E676" d="M4 2 17.5 8.5 14 12Z" />
+            <path fill="#FF424B" d="M4 22 14 12 17.5 15.5Z" />
+            <path fill="#FFCE3E" d="M14 12 17.5 8.5 21 12 17.5 15.5Z" />
+          </svg>
+        </span>
       </div>
-      <div class="cta-note">Soon on Google Play.</div>
       <div class="meta">
         <span>v1.2 · June 2026</span>
         <span class="rule"></span>
