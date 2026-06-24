@@ -127,7 +127,17 @@
   }
   footer a { color: var(--ink-3); }
   footer a:hover { color: var(--ink-1); }
+  footer .footer-row { display: flex; align-items: center; gap: 24px; }
+  footer .footer-row a, footer .footer-row > span { white-space: nowrap; }
   footer .grow { flex: 1; }
+  /* Centre & wrap the footer on tablet portrait and down so labels never
+     break mid-word (e.g. "GPL-3.0") and wrapped items read as intentional. */
+  @media (max-width: 880px) {
+    footer { text-align: center; }
+    footer .footer-row { flex-wrap: wrap; justify-content: center; gap: 8px 16px; }
+    footer .footer-row .grow { display: none; }
+    footer .footer-row > span:not(:last-child) { display: none; }
+  }
 
   @media (max-width: 640px) {
     .post { grid-template-columns: 1fr; gap: 8px; }
@@ -226,7 +236,7 @@
 </main>
 
 <footer>
-  <div class="wrap" style="display: flex; align-items: center; gap: 24px;">
+  <div class="wrap footer-row">
     <a href="../">perpenda.com</a>
     <div class="grow"></div>
     <a href="https://github.com/LuminLynx/Perpenda">GitHub</a>

@@ -115,6 +115,7 @@
   /* flex-wrap keeps the footer (long repo URL included) from forcing
      horizontal scroll on narrow phones. */
   footer .row { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 24px; }
+  footer .row a, footer .row > span { white-space: nowrap; }
   footer .grow { flex: 1; }
   @media (max-width: 560px) {
     footer .grow { display: none; }
@@ -130,6 +131,13 @@
     nav.top .grow { flex: 0 0 100%; height: 0; }
     nav a.link { font-size: 11px; }
     .article .eyebrow { margin-top: 48px; }
+    /* Centre the footer (wordmark on its own line, links wrapping beneath,
+       separator dots dropped) on tablet portrait and down. */
+    footer { text-align: center; }
+    footer .row { justify-content: center; }
+    footer .row .grow { display: none; }
+    footer .row .wordmark { flex-basis: 100%; justify-content: center; }
+    footer .row > span:not(:last-child) { display: none; }
   }
 </style>
 </head>
