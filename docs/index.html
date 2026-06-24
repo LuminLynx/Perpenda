@@ -481,9 +481,13 @@
   }
   /* In fullscreen the video fills the whole (often portrait) screen, where
      `cover` would crop the 16:9 frame's sides and clip the centred title
-     text. Switch to `contain` so it letterboxes and the text always shows. */
+     text. Switch to `contain` so it letterboxes and the text always shows —
+     and paint the letterbox the same cream as the video so the bars blend in
+     (seamless canvas instead of black bars) where the browser honours it. */
   .watch .video video:fullscreen,
-  .watch .video video:-webkit-full-screen { object-fit: contain; }
+  .watch .video video:-webkit-full-screen { object-fit: contain; background: #f8f2da; }
+  .watch .video video:fullscreen::backdrop,
+  .watch .video video:-webkit-full-screen::backdrop { background: #f8f2da; }
   /* Poster overlay with the play button placed in the empty lower band of the
      title-card frame, so it never sits on the centred headline. Clicking it
      hides the overlay and starts the native player. */
