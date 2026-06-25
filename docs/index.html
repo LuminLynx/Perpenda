@@ -479,6 +479,12 @@
     position: absolute; inset: 0; width: 100%; height: 100%;
     object-fit: cover; background: #000; display: block;
   }
+  /* In fullscreen, letterbox instead of crop: a 16:9 video on a portrait
+     phone is centred with plain black bars above and below (never clipped).
+     Only `object-fit` changes — the video keeps its black background, so the
+     bars are black. Rotating to landscape fills the screen. */
+  .watch .video video:fullscreen,
+  .watch .video video:-webkit-full-screen { object-fit: contain; }
   /* Poster overlay with the play button anchored in the open right-hand space
      of the "AI Insight" poster, so it never covers the headline or the
      prediction bars. Clicking anywhere hides the overlay and starts the
